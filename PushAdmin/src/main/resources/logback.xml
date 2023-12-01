@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true" scanPeriod="30 seconds">
+	<!-- 로그 패턴에 색상 적용 %clr(pattern){color} -->
+	<conversionRule conversionWord="clr" converterClass="org.springframework.boot.logging.logback.ColorConverter" />
+
+	<appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<!-- <Pattern>%d{HH:mm} %-5level %logger{36} - %msg%n</Pattern> -->
+			<Pattern>%d{yyyy-MM-dd HH:mm:ss}:%-3relative] %clr(%-5level) %clr(${PID:-}){magenta} %clr(---){faint} %clr([%15.15thread]){faint} %clr(%-40.40logger{36}.%M\(%line\)){cyan} %clr(:){faint} %msg%n
+			</Pattern>
+		</encoder>
+	</appender>
+
+	<appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+
+			<fileNamePattern>/log/tomcat/catalina.out-Push-%d{yyyy-MM-dd}.%i.log.zip</fileNamePattern>
+			<timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+				<!-- or whenever the file size reaches 20MB -->
+				<maxFileSize>250MB</maxFileSize>
+			</timeBasedFileNamingAndTriggeringPolicy>
+
+			<maxHistory>129</maxHistory>
+			<totalSizeCap>1GB</totalSizeCap>
+		</rollingPolicy>
+
+		<encoder>
+			<Pattern>%d{yyyy-MM-dd HH:mm:ss}%-5level %logger{36} - %msg%n</Pattern>
+		</encoder>
+	</appender>
+
+<appender name="FILE_otp_change_log" class="ch.qos.logback.core.rolling.RollingFileAppender">
+
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+
+			<fileNamePattern>/usr/local/tomcat/webapps/ROOT/logs/OTP_MANAGER_LOG-%d{yyyy-MM-dd}.%i.log.zip</fileNamePattern>
+			<timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+				<!--https://github.com/sonegy/how-to-use-logback -->
+			<maxFileSize>50MB</maxFileSize>
+			</timeBasedFileNamingAndTriggeringPolicy>
+
+			<maxHistory>365</maxHistory>
+			<totalSizeCap>1GB</totalSizeCap>
+		</rollingPolicy>
+
+		<encoder>
+			<Pattern>%d{yyyy-MM-dd HH:mm:ss},	%msg%n</Pattern>
+		</encoder>
+	</appender>
+
+
+	<logger name="org.springframework" level="info"  additivity="false" />
+	<logger name="org.mybatis" level="info" />
+	<logger name="org.apache.http" level="info" additivity="false" />
+	<logger name="org.elasticsearch" level="info" additivity="false" />
+	<logger name="com.ddns" level="debug" additivity="false" />
+	<logger name="otp_change_log" level="info" additivity="false">
+		<appender-ref ref="FILE_otp_change_log" />
+	</logger>
+	<logger name="com.push.controller" level="${LOG_LEVEL}">
+		<appender-ref ref="FILE" />
+	</logger>
+	
+	<root level="${LOG_LEVEL}" additivity="false"  >
+		<appender-ref ref="CONSOLE" />
+		<appender-ref ref="FILE" />
+	</root>
+
+</configuration>

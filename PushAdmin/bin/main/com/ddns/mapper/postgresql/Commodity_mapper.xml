@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ddns.dao.Commodity_dao">
+
+	<insert id="insert_commodity" parameterType="commodity">
+		insert into commodity (code, auto_reg_swcontroller) values (#{code}, #{auto_reg_swcontroller})
+	</insert>
+
+	<delete id="delete_commodity" parameterType="map">
+		delete from commodity where code in (${codeListString})
+	</delete>
+
+	<select id="count_commodity_all" resultType="int">
+		select count(*) from commodity
+	</select>
+	<select id="select_commodity_all" parameterType="map" resultType="map">
+		select * from (select row_number() over (order by ${sort} ${direction} nulls last) row_idx, * from commodity) t1 where row_idx between ((#{page} - 1) * 10) + 1 and (#{page} * 10)
+	</select>
+
+	<select id="count_commodity_where_search_type" parameterType="map" resultType="int">
+		select count(*) from commodity where ${search_type} like  CONCAT('%', #{search_word} ,'%')
+	</select>
+	<select id="select_commodity_where_search_type" parameterType="map" resultType="map">
+		select * from (select row_number() over (order by ${sort} ${direction} nulls last) row_idx, * 
+		from commodity where ${search_type} like CONCAT('%', #{search_word} ,'%')) t1   
+		<if test="page !=null and !page.equals('')">
+			where row_idx between ((#{page} - 1) * 10) + 1 and (#{page} * 10)
+		</if>
+	</select>
+
+	<select id="select_commodity_where_code" parameterType="String" resultType="commodity">
+		select * from commodity where code = #{code}
+	</select>
+  
+	<select id="select_commodity_all_excel" parameterType="map" resultType="java.util.LinkedHashMap" fetchSize="2048">
+		select * from(
+		select row_number() over (order by ${sort} ${direction} nulls last)  as row_idx , 
+		 code , auto_reg_swcontroller from commodity_view_0 ) as t1
+		 <if test="page !=null and !page.equals('')">
+			where row_idx between ((#{page} - 1) * 10) + 1 and (#{page} * 10)
+		</if>
+	</select>
+	<select id="select_commodity_where_search_type_excel" parameterType="map" resultType="java.util.LinkedHashMap" fetchSize="2048">
+		select * from(
+		select row_number() over (order by ${sort} ${direction} nulls last)  as row_idx , 
+		 code , auto_reg_swcontroller from commodity_view_0 where ${search_type} like
+		 CONCAT('%',#{search_word},'%') ) as t1
+	 	<if test="page !=null and !page.equals('')">
+			where row_idx between ((#{page} - 1) * 10) + 1 and (#{page} * 10)
+		</if>
+	</select>
+
+</mapper>

@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ddns.dao.P2preserved_dao">
+
+	<insert id="insert_p2preserved" parameterType="String">
+		insert into p2p_reserved (p2p_uid, used) values (#{p2p_uid}, 0)
+	</insert>
+
+
+
+
+	<update id="update_p2preserved_used_where_p2puid" parameterType="map">
+		update p2p_reserved set used = 1, history_mac = #{history_mac}, last_used_time = now() where p2p_uid = #{p2p_uid}
+	</update>
+
+	<update id="update_p2preserved_unused_where_in_p2puid" parameterType="map">
+		update p2p_reserved set used = 0, history_mac = '' where p2p_uid in (${p2puid_list_string})
+	</update>
+
+
+
+
+	<select id="select_p2preserved_where_p2p_uid" parameterType="String" resultType="map" fetchSize="10240">
+		select * from p2p_reserved where p2p_uid = #{p2p_uid}
+	</select>
+
+	<select id="select_p2preserved_where_used_0" resultType="String" fetchSize="1024">
+		select p2p_uid from p2p_reserved where used = 0 order by p2p_uid asc limit 1
+	</select>
+
+	<select id="select_p2preserved_where_historymac" parameterType="String" resultType="String" fetchSize="10240">
+		select p2p_uid from p2p_reserved where history_mac = #{history_mac}
+	</select>
+
+
+
+
+	<select id="count_p2preserved_all" resultType="int">
+		select count(*) from p2p_reserved
+	</select>
+	<select id="select_p2preserved_all" parameterType="map" resultType="map" fetchSize="10240">
+		select * from (select row_number() over (order by ${sort} ${direction} nulls last) row_idx, * from (select rtrim(b.jumin) as jumin, a.p2p_uid, b.p2p_priority, a.used, to_char(a.last_used_time, 'YYYY-MM-DD HH24:MI:SS') as last_used_time from p2p_reserved a left join users b on a.p2p_uid = b.p2p_uid group by b.jumin, a.p2p_uid, b.p2p_priority, a.used) t1) t2 where row_idx between ((#{page} - 1) * 10) + 1 and (#{page} * 10)
+	</select>
+
+	<select id="count_p2preserved_where_mac" parameterType="String" resultType="int">
+		select count(*) from p2p_reserved a left join users b on a.p2p_uid = b.p2p_uid where b.jumin like CONCAT('%',#{mac},'%')
+	</select>
+	<select id="select_p2preserved_where_mac" parameterType="map" resultType="map" fetchSize="10240">
+		select * from (select row_number() over (order by ${sort} ${direction} nulls last) row_idx, * from 
+		(select rtrim(b.jumin) as jumin, a.p2p_uid, b.p2p_priority, a.used, 
+		to_char(a.last_used_time, 'YYYY-MM-DD HH24:MI:SS') as last_used_time from
+		 p2p_reserved a left join users b on a.p2p_uid = b.p2p_uid where b.jumin 
+		 	<choose>
+			<when test="mac == null">
+				is null
+			</when>
+			<when test="mac.equals('')">
+				is not null and b.jumin = ''
+			</when>
+			<otherwise>
+				like CONCAT('%',#{mac},'%')
+			</otherwise>
+			</choose>
+		 group by b.jumin, a.p2p_uid, b.p2p_priority, a.used) t1) 
+		  t2 where row_idx between ((#{page} - 1) * 10) + 1 and (#{page} * 10)
+	</select>
+
+	<select id="count_p2preserved_where_p2p_uid" parameterType="String" resultType="int">
+		select count(*) from p2p_reserved where p2p_uid like CONCAT('%', #{p2p_uid},'%')
+	</select>
+	<select id="select_p2preserved_where_p2p_uid_search" parameterType="map" resultType="map" fetchSize="10240">
+		select * from (select row_number() over (order by ${sort} ${direction} nulls last) row_idx, * from (select rtrim(b.jumin) as jumin, a.p2p_uid, b.p2p_priority, a.used, to_char(a.last_used_time, 'YYYY-MM-DD HH24:MI:SS') as last_used_time from p2p_reserved a left join users b on a.p2p_uid = b.p2p_uid where a.p2p_uid like CONCAT('%', #{p2p_uid} ,'%') group by b.jumin, a.p2p_uid, b.p2p_priority, a.used) t1) t2 where row_idx between ((#{page} - 1) * 10) + 1 and (#{page} * 10)
+	</select>
+
+	<select id="select_p2preserved_all_excel" parameterType="map" resultType="java.util.LinkedHashMap" fetchSize="10240">
+	select row_idx, 
+		jumin, p2p_uid, p2p_priority,used,last_used_time
+		 from(
+		select row_number() over (order by ${sort} ${direction} nulls last) row_idx, 
+		jumin, p2p_uid, p2p_priority,used,last_used_time from p2p_reserved_users_join_0) as t1
+			 <if test="page !=null and !page.equals('')">
+			where row_idx between ((#{page} - 1) * 10) + 1 and (#{page} * 10)
+		</if>
+	</select>
+	<select id="select_p2preserved_where_mac_excel" parameterType="map" resultType="java.util.LinkedHashMap" fetchSize="10240">
+			select * from (select row_number() over (order by ${sort} ${direction} nulls last) row_idx, * from 
+		(select rtrim(COALESCE(b.jumin,'')) as jumin, 
+	   COALESCE(a.p2p_uid, ''::character varying) AS p2p_uid,
+        CASE
+            WHEN b.p2p_priority = '2'::smallint THEN 'P2P만 사용'::text
+            WHEN b.p2p_priority = '1'::smallint THEN 'Auto'::text
+            WHEN b.p2p_priority = '0'::smallint THEN 'P2P 사용 안 함'::text
+            ELSE to_char(COALESCE(b.p2p_priority::double precision, '-1'::double precision), '0009'::text)
+        END AS p2p_priority,
+          CASE
+            WHEN a.used = '1'::smallint THEN '사용'::text
+            WHEN a.used = '0'::smallint THEN '사용 가능'::text
+            ELSE to_char(a.used::double precision, '09'::text)
+        END AS used,
+		to_char(a.last_used_time, 'YYYY-MM-DD HH24:MI:SS') as last_used_time from
+		 p2p_reserved a left join users b on a.p2p_uid = b.p2p_uid where b.jumin 
+		 	<choose>
+			<when test="mac == null">
+				is null
+			</when>
+			<when test="mac.equals('')">
+				is not null and b.jumin = ''
+			</when>
+			<otherwise>
+				like CONCAT('%',#{mac},'%')
+			</otherwise>
+			</choose>
+		group by b.jumin, a.p2p_uid, b.p2p_priority, a.used) t1) t2
+		 <if test="page !=null and !page.equals('')">
+		   where row_idx between ((#{page} - 1) * 10) + 1 and (#{page} * 10)
+		</if>
+	</select>
+	<select id="select_p2preserved_where_p2p_uid_excel" parameterType="map" resultType="java.util.LinkedHashMap" fetchSize="10240">
+		select row_idx, 
+		jumin, p2p_uid, p2p_priority,used,last_used_time
+		 from(
+		select row_number() over 
+		(order by ${sort} ${direction} nulls last) row_idx, jumin, p2p_uid, p2p_priority, used , last_used_time from 
+		p2p_reserved_users_join_0 where p2p_uid  like CONCAT('%', #{p2p_uid},'%')) as t1
+	 <if test="page !=null and !page.equals('')">
+			where row_idx between ((#{page} - 1) * 10) + 1 and (#{page} * 10)
+		</if>
+	</select>
+
+</mapper>

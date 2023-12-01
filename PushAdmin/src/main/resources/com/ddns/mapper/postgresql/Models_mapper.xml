@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ddns.dao.Models_dao">
+
+	<insert id="insert_models" parameterType="String">
+		insert into models (model, fw_version ,fw_otp_batch_base_rule ) values (#{model}, '1.0.0','1.0.0')
+	</insert>
+
+
+	<delete id="delete_models" parameterType="map">
+		delete from models where model in (${modelListString})
+	</delete>
+
+
+	<update id="update_models_fw_info" parameterType="map">
+		update models 
+		set 
+		<choose>
+			<when test="current_fw_ver !=null">
+				fw_version = 
+			</when>
+			<otherwise>
+				fw_version = fw_version
+			</otherwise>
+		</choose>
+		<choose>
+			<when test="fw_otp_batch_base_rule_new_value !=null">
+				, fw_otp_batch_base_rule = replace(fw_otp_batch_base_rule_new_value,'V','')  
+			</when>
+			<otherwise>
+				, fw_otp_batch_base_rule = fw_otp_batch_base_rule
+			</otherwise>
+		</choose>
+		where model in (${modelListString})
+	</update>
+
+
+	<select id="count_models_all" resultType="int">
+		select count(*) from models
+	</select>
+	<select id="select_models_all" parameterType="map" resultType="java.util.LinkedHashMap">
+		select * from (select row_number() over (order by ${sort} ${direction} nulls last) row_idx, * from models) t1 
+		where row_idx between ((#{page} - 1) * 10) + 1 and (#{page} * 10)
+	</select>
+
+	<select id="count_models_where_search_type" parameterType="map" resultType="int">
+		select count(*) from models where ${search_type} like CONCAT('%', #{search_word} ,'%')
+	</select>
+	<select id="select_models_where_search_type" parameterType="map" resultType="java.util.LinkedHashMap">
+		select * from (select row_number() over (order by ${sort} ${direction} nulls last) row_idx, * from models 
+		where ${search_type} like CONCAT('%',#{search_word},'%')) t1 where row_idx between ((#{page} - 1) * 10) + 1 and (#{page} * 10)
+	</select>
+
+	<select id="select_models_all_excel" parameterType="map" resultType="java.util.LinkedHashMap">
+		select * from(
+		select  row_number() over (order by ${sort} ${direction} nulls last)  as row_idx ,
+		  model , fw_version , fw_otp_batch_base_rule  from models ) as t1
+		 <if test="page !=null and !page.equals('')">
+			where row_idx between ((#{page} - 1) * 10) + 1 and (#{page} * 10)
+		</if>
+	</select>
+	<select id="select_models_where_search_type_excel" parameterType="map" resultType="java.util.LinkedHashMap">
+		select * from(
+		select  row_number() over (order by ${sort} ${direction} nulls last)  as row_idx ,
+		model , fw_version ,fw_otp_batch_base_rule from models where ${search_type} like CONCAT('%',#{search_word},'%') ) as t1
+	 <if test="page !=null and !page.equals('')">
+			where row_idx between ((#{page} - 1) * 10) + 1 and (#{page} * 10)
+		</if>
+	</select>
+
+	<select id="select_models_where_model" parameterType="String" resultType="java.util.LinkedHashMap">
+		select  row_number() over ()  as row_idx ,
+		 model , fw_version , fw_otp_batch_base_rule from models where model = #{model}
+	</select>
+
+</mapper>

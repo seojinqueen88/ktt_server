@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ddns.dao.ClientAccesLogTBLDao">
+
+
+<select id="select_ClientAccesLogTBL_all"
+	 parameterType="map" 
+	resultType="java.util.LinkedHashMap" fetchSize="2048">
+		select  *  from  (
+			select row_number() over ( order by ${sort} ${direction} nulls last  , req_date desc nulls last) as row_idx , *
+		 	from "CLIENT_ACCESSLOG_TBL" where mac_address = #{mac_address} 		
+			 
+		) as t1 where row_idx between ((#{page} - 1) * 10) + 1 and (#{page} * 10)
+		
+		<if test="search_type != null and !search_type.equals('')">
+		where ${search_type} like CONCAT('%',#{search_word},'%')
+		</if>
+		<if test="offset !=null">
+			 offset #{offset}
+		</if>
+	</select>
+		
+	 	<select id="count_ClientAccesLogTBL_all" parameterType="map" resultType="int">
+		select count(*) from "CLIENT_ACCESSLOG_TBL" where api_type is not null
+		 and req_date is not null 
+		 <if test="mac_address != null and !mac_address.equals('')">
+		and mac_address = #{mac_address}
+		</if>
+		<if test="search_type != null and !search_type.equals('')">
+		and ${search_type} like CONCAT('%',#{search_word},'%')
+		</if>
+	</select>
+
+ 	<select id="count_ClientAccesLogTBL" parameterType="map" resultType="int">
+		select count(*) from "CLIENT_ACCESSLOG_TBL" where api_type is not null
+		<if test="client_access_log_req_type != null">
+			and client_access_log_req_type =#{client_access_log_req_type}
+		</if>
+		 and req_date is not null 
+		 <if test="mac_address != null and !mac_address.equals('')">
+		and mac_address = #{mac_address}
+		</if>
+		<if test="search_type != null and !search_type.equals('')">
+		and ${search_type} like CONCAT('%',#{search_word},'%')
+		</if>
+	</select>
+		  
+	<select id="select_ClientAccesLogTBL"
+	 parameterType="map" 
+	resultType="java.util.LinkedHashMap" fetchSize="2048">
+		select  *  from  (
+			select row_number() over ( order by ${sort} ${direction} nulls last  , req_date desc nulls last) as row_idx , *
+		 	from 
+		 	<choose>
+		 	<when test="client_access_log_req_type != null and client_access_log_req_type == 0">
+			   "app_access"    
+		  	</when>
+		  	<when test="client_access_log_req_type !=null and client_access_log_req_type == 1">
+			   "cms_access"
+		  	</when>
+		  	<when test="client_access_log_req_type !=null and (client_access_log_req_type == 2 or client_access_log_req_type == 3)">
+			  "device_protocol"
+		  	</when>
+		  	<when test="client_access_log_req_type !=null and client_access_log_req_type == 5">
+			"CLIENT_ACCESSLOG_TBL" 
+		  	</when>
+			<otherwise>
+			"CLIENT_ACCESSLOG_TBL" 
+			</otherwise>
+			</choose>
+			 <choose>
+		 	<when test="mac_address != null and !mac_address.equals('') and client_access_log_req_type !=null and client_access_log_req_type == 2">
+				 where mac_address = #{mac_address} and req_id = '0'
+		  	</when>
+		  	<when test="mac_address != null and !mac_address.equals('') and client_access_log_req_type !=null and client_access_log_req_type == 3">
+			    where mac_address = #{mac_address} and req_id = '1'
+		  	</when>
+		  	<when test="( mac_address == null or mac_address.equals('') )and client_access_log_req_type !=null and client_access_log_req_type == 2">
+			  where  req_id='0'
+		  	</when>
+			<when test="( mac_address == null or mac_address.equals('') )and client_access_log_req_type !=null and client_access_log_req_type == 3">
+			  where  req_id='1'
+		  	</when>
+			  <when test="mac_address != null and !mac_address.equals('')">
+			      where mac_address = #{mac_address} 
+		  	</when>
+			</choose>
+			
+			 
+		) as t1 where row_idx between ((#{page} - 1) * 10) + 1 and (#{page} * 10)
+		
+		<if test="search_type != null and !search_type.equals('')">
+		where ${search_type} like CONCAT('%',#{search_word},'%')
+		</if>
+		<if test="offset !=null">
+			 offset #{offset}
+		</if>
+	</select>
+	 	  
+	<select id="select_ClientAccesLogTBL_forExcel"
+	 parameterType="map" 
+	 resultType="java.util.LinkedHashMap" fetchSize="2048">
+		select  row_idx, client_access_req_type, mac_address, req_id , api_type, req_date  from  (
+			select row_number() over ( order by ${sort} ${direction} nulls last  , req_date desc nulls last) as row_idx , *
+		 	from "CLIENT_ACCESSLOG_TBL_FOR_EXCEL" where mac_address = '${mac_address}' 
+	
+			<choose>
+		 	<when test="client_access_log_req_type != null and client_access_log_req_type == 0">
+				and client_access_req_type = 'APP ACCESS'
+		  	</when>
+		  	
+		  	<when test="client_access_log_req_type != null and client_access_log_req_type == 1">
+			 	and client_access_req_type = 'CMS ACCESS'
+		  	</when>
+		  	
+		  	<when test="client_access_log_req_type != null and client_access_log_req_type == 2 or client_access_log_req_type == 3">
+			 	and client_access_req_type = '장비/웹뷰어 ACCESS'
+		  	</when>
+		  	
+			<otherwise>
+				and count !=0 
+			</otherwise>
+		</choose>
+		
+		) as t1 
+			where row_idx between ((#{page} - 1) * 10) + 1 and (#{page} * 10)
+		<if test="search_type != null and !search_type.equals('')">
+		where ${search_type} like CONCAT('%',#{search_word},'%')
+		</if>
+	</select>
+	
+		 	  
+	<select id="select_ClientAccesLogTBLAll_forExcel"
+	 parameterType="map" 
+	 resultType="java.util.LinkedHashMap" fetchSize="2048">
+		select  row_idx, client_access_req_type, mac_address, req_id , api_type, req_date  from  (
+			select row_number() over ( order by ${sort} ${direction} nulls last  , req_date desc nulls last) as row_idx , *
+		 	from "CLIENT_ACCESSLOG_TBL_FOR_EXCEL" where mac_address = '${mac_address}' 
+	
+			<choose>
+		 	<when test="client_access_log_req_type != null and client_access_log_req_type == 0">
+				and client_access_req_type = 'APP ACCESS'
+		  	</when>
+		  	
+		  	<when test="client_access_log_req_type != null and client_access_log_req_type == 1">
+			 	and client_access_req_type = 'CMS ACCESS'
+		  	</when>
+		  	
+		  	<when test="client_access_log_req_type != null and client_access_log_req_type == 2 or client_access_log_req_type == 3">
+			 	and client_access_req_type = '장비/웹뷰어 ACCESS'
+		  	</when>
+		  	
+			<otherwise>
+				and count !=0 
+			</otherwise>
+		</choose>
+		
+		) as t1 
+	</select>
+
+	 
+</mapper>

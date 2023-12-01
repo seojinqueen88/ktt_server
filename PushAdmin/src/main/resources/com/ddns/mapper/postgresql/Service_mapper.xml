@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ddns.dao.Service_dao">
+
+	<select id="count_service_all" resultType="int">
+		select count(*) from service
+	</select>
+	<select id="select_service_all" parameterType="map" resultType="map">
+		select * from (select row_number() over (order by ${sort} ${direction} nulls last) row_idx, service_no, customer_no, contract_no, firm_nm, mgr_lomo_cd, mgr_brno_cd, sys_id, cust_sts, cont_gd_smlcls, to_char(update_time, 'YYYY-MM-DD HH24:MI:SS') as update_time from service) t1 where row_idx between ((#{page} - 1) * 10) + 1 and (#{page} * 10)
+	</select>
+
+	<select id="count_service_where_search_type" parameterType="map" resultType="int">
+		select count(*) from service where ${search_type} like #{search_word}
+	</select>
+	<select id="select_service_where_search_type" parameterType="map" resultType="map">
+		select * from (select row_number() over (order by ${sort} ${direction} nulls last) row_idx, service_no, customer_no, contract_no, firm_nm, mgr_lomo_cd, mgr_brno_cd, sys_id, cust_sts, cont_gd_smlcls, to_char(update_time, 'YYYY-MM-DD HH24:MI:SS') as update_time from service where ${search_type} like #{search_word}) t1 where row_idx between ((#{page} - 1) * 10) + 1 and (#{page} * 10)
+	</select>
+
+	<select id="select_service_all_excel" parameterType="map" resultType="java.util.LinkedHashMap" fetchSize="50000">
+		select * from(
+		select row_number() over (order by ${sort} ${direction} nulls last)  as row_idx ,  
+		service_no, customer_no, contract_no, firm_nm, mgr_lomo_cd, mgr_brno_cd, sys_id, 
+		CASE
+            WHEN cust_sts::text = '01'::text THEN '01 유지'::text
+            WHEN cust_sts::text = '02'::text THEN '02 정지'::text
+            WHEN cust_sts::text = '03'::text THEN '03 해지'::text
+            WHEN cust_sts::text = '04'::text THEN '04 청약'::text
+            WHEN cust_sts::text = '05'::text THEN '05 설변'::text
+            WHEN cust_sts::text = '09'::text THEN '09 청약취소'::text
+            WHEN cust_sts::text = '99'::text THEN '99 이중등록'::text
+        END AS cust_sts
+		, cont_gd_smlcls, 
+		  update_time from service_view_0 ) as t1 
+			<choose>
+			<when test="page !=null">
+			where row_idx between ((#{page} - 1) * 10) + 1 and (#{page} * 10)
+			</when>
+			<when  test="offset !=null">
+				offset #{offset} limit 100000
+			</when>
+		</choose>
+	</select>
+	<select id="select_service_where_search_type_excel" parameterType="map" resultType="java.util.LinkedHashMap" fetchSize="50000">
+	select * from(
+		select row_number() over (order by ${sort} ${direction} nulls last) row_idx, 	
+	 	service_no, customer_no, contract_no, firm_nm, mgr_lomo_cd, mgr_brno_cd, sys_id, 
+		  CASE
+            WHEN cust_sts::text = '01'::text THEN '01 유지'::text
+            WHEN cust_sts::text = '02'::text THEN '02 정지'::text
+            WHEN cust_sts::text = '03'::text THEN '03 해지'::text
+            WHEN cust_sts::text = '04'::text THEN '04 청약'::text
+            WHEN cust_sts::text = '05'::text THEN '05 설변'::text
+            WHEN cust_sts::text = '09'::text THEN '09 청약취소'::text
+            WHEN cust_sts::text = '99'::text THEN '99 이중등록'::text
+        END AS cust_sts
+		, cont_gd_smlcls,  update_time from 
+		service_view_0  where ${search_type} like CONCAT('%', #{search_word} , '%') ) as t1 
+			<choose>
+			<when test="page !=null">
+			where row_idx between ((#{page} - 1) * 10) + 1 and (#{page} * 10)
+			</when>
+			<when  test="offset !=null">
+				offset #{offset} limit 100000
+			</when>
+		</choose>
+	</select>
+	
+</mapper>

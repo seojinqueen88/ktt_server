@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ddns.dao.Ddnslog_dao">
+
+	<select id="count_ddnslog_all" resultType="int">
+		select count(*) from ddnslog
+	</select>
+	<select id="select_ddnslog_all" parameterType="map" resultType="java.util.LinkedHashMap">
+		select row_idx, mac, message,  create_time from (select row_number() over (order by ${sort} ${direction} nulls last) row_idx, mac, message, to_char(create_time, 'YYYY-MM-DD HH24:MI:SS') as create_time from ddnslog) t1 where row_idx between ((#{page} - 1) * 10) + 1 and (#{page} * 10)
+	</select>
+
+	<select id="count_ddnslog_where_search_type" parameterType="map" resultType="int">
+		select count(*) from ddnslog where ${search_type} like CONCAT('%',#{search_word},'%')
+	</select>
+	<select id="select_ddnslog_where_search_type" parameterType="map" resultType="java.util.LinkedHashMap">
+		select  row_idx, mac,message,  create_time  from 
+		(select row_number() over (order by ${sort} ${direction} nulls last) row_idx, 
+		mac, message, to_char(create_time, 'YYYY-MM-DD HH24:MI:SS') as create_time from ddnslog 
+		where ${search_type} like CONCAT('%', #{search_word},'%') ) t1 where row_idx
+		 between ((#{page} - 1) * 10) + 1 and (#{page} * 10)
+	</select>
+
+	<select id="count_ddnslog_where_create_date" parameterType="map" resultType="int">
+		select count(*) from ddnslog where create_time >= date '${start_create_date}' and create_time &lt; date '${end_create_date}' + interval '1 day'
+	</select>
+	<select id="select_ddnslog_where_create_date" parameterType="map" resultType="java.util.LinkedHashMap">
+		select  row_idx,mac,message,  create_time  from (select row_number() over (order by ${sort} ${direction} nulls last) row_idx, mac, message, to_char(create_time, 'YYYY-MM-DD HH24:MI:SS') as create_time from ddnslog where create_time >= date '${start_create_date}' and create_time &lt; date '${end_create_date}' + interval '1 day') t1 where row_idx between ((#{page} - 1) * 10) + 1 and (#{page} * 10)
+	</select>
+
+	<select id="select_ddnslog_all_excel" parameterType="map" resultType="java.util.LinkedHashMap">
+			select * from (select row_number() over (order by ${sort} ${direction} nulls last) row_idx,
+		 mac, message, to_char(create_time, 'YYYY-MM-DD HH24:MI:SS') as create_time from ddnslog
+		) as t1
+		 <if test="page !=null and !page.equals('')">
+			where row_idx between ((#{page} - 1) * 10) + 1 and (#{page} * 10)
+		</if>
+	</select>
+	<select id="select_ddnslog_where_search_type_excel" parameterType="map" resultType="java.util.LinkedHashMap">
+			select * from (select row_number() over (order by ${sort} ${direction} nulls last) row_idx,
+		 mac, message, to_char(create_time, 'YYYY-MM-DD HH24:MI:SS') as create_time from
+		 ddnslog where ${search_type} like CONCAT('%',#{search_word},'%') ) as t1
+		 <if test="page !=null and !page.equals('')">
+			where row_idx between ((#{page} - 1) * 10) + 1 and (#{page} * 10)
+		</if>
+	</select>
+	<select id="select_ddnslog_where_create_date_excel" parameterType="map" resultType="java.util.LinkedHashMap">
+			select * from (select row_number() over (order by ${sort} ${direction} nulls last) row_idx, 
+		 mac, message, to_char(create_time, 'YYYY-MM-DD HH24:MI:SS') as create_time from 
+		ddnslog where create_time >= date '${start_create_date}' and 
+		create_time &lt; date '${end_create_date}' + interval '1 day' ) as t1
+		<if test="page !=null and !page.equals('')">
+			where row_idx between ((#{page} - 1) * 10) + 1 and (#{page} * 10)
+		</if>
+	</select>
+	
+</mapper>

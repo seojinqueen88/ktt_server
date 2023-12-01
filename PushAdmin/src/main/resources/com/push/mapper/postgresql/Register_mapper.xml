@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.push.dao.Register_dao">
+	<select id="count_register_all" resultType="int">
+		select count(*) from (select a.mobile_idx, a.register_name, a.register_mac, b.user_id, b.app_num, a.push_yn, a.modify_date, a.create_date from register a, mobile b where a.mobile_idx = b.mobile_idx) t1
+	</select>
+	<select id="select_register_all" parameterType="map" resultType="map">
+		select * from (select row_number() over (order by ${sort} ${direction} nulls last) row_idx, * from (select a.mobile_idx, a.register_name, a.register_mac, b.user_id, b.app_num, a.push_yn, to_char(a.modify_date, 'YYYY-MM-DD HH24:MI:SS') as modify_date, to_char(a.create_date, 'YYYY-MM-DD HH24:MI:SS') as create_date from register a, mobile b where a.mobile_idx = b.mobile_idx) t1) t2 where row_idx between ((#{page} - 1) * 10) + 1 and (#{page} * 10)
+	</select>
+
+	<select id="count_register_where_register_name" parameterType="String" resultType="int">
+		select count(*) from (select a.mobile_idx, a.register_name, a.register_mac, b.user_id, b.app_num, a.push_yn, a.modify_date, a.create_date from register a, mobile b where a.mobile_idx = b.mobile_idx and a.register_name like #{register_name}) t1
+	</select>
+	<select id="select_register_where_register_name" parameterType="map" resultType="map">
+		select * from (select row_number() over (order by ${sort} ${direction} nulls last) row_idx, * from (select a.mobile_idx, a.register_name, a.register_mac, b.user_id, b.app_num, a.push_yn, to_char(a.modify_date, 'YYYY-MM-DD HH24:MI:SS') as modify_date, to_char(a.create_date, 'YYYY-MM-DD HH24:MI:SS') as create_date from register a, mobile b where a.mobile_idx = b.mobile_idx and a.register_name like #{register_name}) t1) t2 where row_idx between ((#{page} - 1) * 10) + 1 and (#{page} * 10)
+	</select>
+
+	<select id="count_register_where_register_mac" parameterType="String" resultType="int">
+		select count(*) from (select a.mobile_idx, a.register_name, a.register_mac, b.user_id, b.app_num, a.push_yn, a.modify_date, a.create_date from register a, mobile b where a.mobile_idx = b.mobile_idx and a.register_mac like #{register_mac}) t1
+	</select>
+	<select id="select_register_where_register_mac" parameterType="map" resultType="map">
+		select * from (select row_number() over (order by ${sort} ${direction} nulls last) row_idx, * from (select a.mobile_idx, a.register_name, a.register_mac, b.user_id, b.app_num, a.push_yn, to_char(a.modify_date, 'YYYY-MM-DD HH24:MI:SS') as modify_date, to_char(a.create_date, 'YYYY-MM-DD HH24:MI:SS') as create_date from register a, mobile b where a.mobile_idx = b.mobile_idx and a.register_mac like #{register_mac}) t1) t2 where row_idx between ((#{page} - 1) * 10) + 1 and (#{page} * 10)
+	</select>
+
+	<select id="count_register_where_user_id" parameterType="String" resultType="int">
+		select count(*) from (select a.mobile_idx, a.register_name, a.register_mac, b.user_id, b.app_num, a.push_yn, a.modify_date, a.create_date from register a, mobile b where a.mobile_idx = b.mobile_idx and b.user_id like #{user_id}) t1
+	</select>
+	<select id="select_register_where_user_id" parameterType="map" resultType="map">
+		select * from (select row_number() over (order by ${sort} ${direction} nulls last) row_idx, * from (select a.mobile_idx, a.register_name, a.register_mac, b.user_id, b.app_num, a.push_yn, to_char(a.modify_date, 'YYYY-MM-DD HH24:MI:SS') as modify_date, to_char(a.create_date, 'YYYY-MM-DD HH24:MI:SS') as create_date from register a, mobile b where a.mobile_idx = b.mobile_idx and b.user_id like #{user_id}) t1) t2 where row_idx between ((#{page} - 1) * 10) + 1 and (#{page} * 10)
+	</select>
+
+	<select id="count_register_where_push_yn" parameterType="int" resultType="int">
+		select count(*) from (select a.mobile_idx, a.register_name, a.register_mac, b.user_id, b.app_num, a.push_yn, a.modify_date, a.create_date from register a, mobile b where a.mobile_idx = b.mobile_idx and a.push_yn=#{push_yn}) t1
+	</select>
+	<select id="select_register_where_push_yn" parameterType="map" resultType="map">
+		select * from (select row_number() over (order by ${sort} ${direction} nulls last) row_idx, * from (select a.mobile_idx, a.register_name, a.register_mac, b.user_id, b.app_num, a.push_yn, to_char(a.modify_date, 'YYYY-MM-DD HH24:MI:SS') as modify_date, to_char(a.create_date, 'YYYY-MM-DD HH24:MI:SS') as create_date from register a, mobile b where a.mobile_idx = b.mobile_idx and a.push_yn=#{push_yn}) t1) t2 where row_idx between ((#{page} - 1) * 10) + 1 and (#{page} * 10)
+	</select>
+
+	<select id="count_register_where_create_date" parameterType="map" resultType="int">
+		select count(*) from (select a.mobile_idx, a.register_name, a.register_mac, b.user_id, b.app_num, a.push_yn, a.modify_date, a.create_date from register a, mobile b where a.mobile_idx = b.mobile_idx and a.create_date >= date '${start_create_date}' and a.create_date &lt; date '${end_create_date}' + interval '1 day') t1
+	</select>
+	<select id="select_register_where_create_date" parameterType="map" resultType="map">
+		select * from (select row_number() over (order by ${sort} ${direction} nulls last) row_idx, * from (select a.mobile_idx, a.register_name, a.register_mac, b.user_id, b.app_num, a.push_yn, to_char(a.modify_date, 'YYYY-MM-DD HH24:MI:SS') as modify_date, to_char(a.create_date, 'YYYY-MM-DD HH24:MI:SS') as create_date from register a, mobile b where a.mobile_idx = b.mobile_idx and a.create_date >= date '${start_create_date}' and a.create_date &lt; date '${end_create_date}' + interval '1 day') t1) t2 where row_idx between ((#{page} - 1) * 10) + 1 and (#{page} * 10)
+	</select>
+
+	<select id="select_register_all_excel" parameterType="map" resultType="java.util.LinkedHashMap">
+		select * from(
+		select row_number() over (order by ${sort} ${direction} nulls last) row_idx, 
+		register_name , register_mac , user_id  , push_yn, modify_date, create_date 
+		 from register_view_0) t1
+		 <if test="page !=null and !page.equals('')">
+			where row_idx between ((#{page} - 1) * 10) + 1 and (#{page} * 10)
+		</if>
+	</select>
+	<select id="select_register_where_register_name_excel" parameterType="map" resultType="java.util.LinkedHashMap">
+	select * from(
+	select row_number() over (order by ${sort} ${direction} nulls last) row_idx, 
+		register_name , register_mac , user_id  , push_yn, modify_date, create_date 
+		 from register_view_0 where register_name like CONCAT('%' , #{register_name} , '%')) t1
+		 <if test="page !=null and !page.equals('')">
+			where row_idx between ((#{page} - 1) * 10) + 1 and (#{page} * 10)
+		</if>
+	</select>
+	<select id="select_register_where_register_mac_excel" parameterType="map" resultType="java.util.LinkedHashMap">
+	select * from(
+		select row_number() over (order by ${sort} ${direction} nulls last) row_idx, 
+		 register_name , register_mac , user_id  , push_yn, modify_date, create_date
+		 from register_view_0 where register_mac  like CONCAT('%' , #{register_mac} , '%')) t1
+		 <if test="page !=null and !page.equals('')">
+			where row_idx between ((#{page} - 1) * 10) + 1 and (#{page} * 10)
+		</if>
+	</select>
+	<select id="select_register_where_user_id_excel" parameterType="map" resultType="java.util.LinkedHashMap">
+		select * from(
+		select row_number() over (order by ${sort} ${direction} nulls last) row_idx, 
+		 register_name , register_mac , user_id  , push_yn, modify_date, create_date 
+		 from register_view_0 where user_id  like CONCAT('%' , #{user_id} , '%')) t1
+		 <if test="page !=null and !page.equals('')">
+			where row_idx between ((#{page} - 1) * 10) + 1 and (#{page} * 10)
+		</if>
+	</select>
+	<select id="select_register_where_push_yn_excel" parameterType="map" resultType="java.util.LinkedHashMap">
+		select * from(
+		select row_number() over (order by ${sort} ${direction} nulls last) row_idx, 
+		 register_name , register_mac , user_id  , push_yn, modify_date, create_date 
+		 from register_view_0 where push_yn=#{push_yn}) t1
+		 <if test="page !=null and !page.equals('')">
+			where row_idx between ((#{page} - 1) * 10) + 1 and (#{page} * 10)
+		</if>
+	</select>
+	<select id="select_register_where_create_date_excel" parameterType="map" resultType="java.util.LinkedHashMap">
+		select * from(
+		select row_number() over (order by ${sort} ${direction} nulls last) row_idx, 
+		 register_name , register_mac , user_id  , push_yn, modify_date, 
+		to_char(create_date, 'YYYY-MM-DD HH24:MI:SS'::text) AS create_date 
+		 from register_view_1 where create_date >= date '${start_create_date}' and create_date &lt; date '${end_create_date}' + interval '1 day'
+		 )t1 
+		 <if test="page !=null and !page.equals('')">
+			where row_idx between ((#{page} - 1) * 10) + 1 and (#{page} * 10)
+		</if>
+</select>
+</mapper>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ddns.dao.Setup_dao">
+
+	<update id="update_setup_devplaykey" parameterType="int">
+		update setup set int_value = #{int_value} where setup_key = 'devplaykey_limit_min'
+	</update>
+
+	<update id="update_setup_eventtime" parameterType="int">
+		update setup set int_value = #{int_value} where setup_key = 'eventtime_limit_day'
+	</update>
+
+	<select id="select_setup" resultType="setup">
+		select * from setup
+	</select>
+
+</mapper>

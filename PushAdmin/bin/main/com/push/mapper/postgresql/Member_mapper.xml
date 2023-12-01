@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.push.dao.Member_dao">
+	<insert id="insert_member" parameterType="member">
+		insert into member (member_id, member_pw, member_auth, create_date) values (#{member_id}, #{member_pw}, #{member_auth}, now())
+	</insert>
+
+	<update id="update_member_last_login_date" parameterType="member">
+		update member set last_login_date=#{last_login_date} where member_idx=#{member_idx}
+	</update>
+
+	<delete id="delete_member" parameterType="int">
+		delete from member where member_idx=#{member_idx}
+	</delete>
+
+	<select id="select_member_where_member_id" parameterType="String" resultType="member">
+		select * from member where member_id=#{member_id}
+	</select>
+
+	<select id="count_member_all" resultType="int">
+		select count(*) from member
+	</select>
+
+	<select id="select_member_all" parameterType="map" resultType="map">
+		select * from (select row_number() over (order by ${sort} ${direction} nulls last) row_idx, member_idx, member_id, member_auth, to_char(last_login_date, 'YYYY-MM-DD HH24:MI:SS') as last_login_date, to_char(create_date, 'YYYY-MM-DD HH24:MI:SS') as create_date from member) t1 where row_idx between ((#{page} - 1) * 10) + 1 and (#{page} * 10)
+	</select>
+</mapper>

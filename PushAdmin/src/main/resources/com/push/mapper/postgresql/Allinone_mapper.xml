@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.push.dao.Allinone_dao">
+	<delete id="delete_allinone" parameterType="map">
+		delete from allinone where server_id = #{server_id} and user_id = #{user_id}
+	</delete>
+
+	<select id="count_allinone_all" resultType="int">
+		select count(*) from allinone
+	</select>
+	<select id="select_allinone_all" parameterType="map" resultType="map">
+		select * from (select row_number() over (order by ${sort} ${direction} nulls last) row_idx, * from (select server_id, user_id, token_id, app_ver, mobile_type, app_num, to_char(create_date, 'YYYY-MM-DD HH24:MI:SS') as create_date from allinone) t1) t2 where row_idx between ((#{page} - 1) * 10) + 1 and (#{page} * 10)
+	</select>
+
+	<select id="count_allinone_where_server_id" parameterType="String" resultType="int">
+		select count(*) from allinone where server_id like #{server_id}
+	</select>
+	<select id="select_allinone_where_server_id" parameterType="map" resultType="map">
+		select * from (select row_number() over (order by ${sort} ${direction} nulls last) row_idx, * from (select server_id, user_id, token_id, app_ver, mobile_type, app_num, to_char(create_date, 'YYYY-MM-DD HH24:MI:SS') as create_date from allinone where server_id like #{server_id}) t1) t2 where row_idx between ((#{page} - 1) * 10) + 1 and (#{page} * 10)
+	</select>
+
+	<select id="count_allinone_where_user_id" parameterType="String" resultType="int">
+		select count(*) from allinone where user_id like #{user_id}
+	</select>
+	<select id="select_allinone_where_user_id" parameterType="map" resultType="map">
+		select * from (select row_number() over (order by ${sort} ${direction} nulls last) row_idx, * from (select server_id, user_id, token_id, app_ver, mobile_type, app_num, to_char(create_date, 'YYYY-MM-DD HH24:MI:SS') as create_date from allinone where user_id like #{user_id}) t1) t2 where row_idx between ((#{page} - 1) * 10) + 1 and (#{page} * 10)
+	</select>
+
+	<select id="count_allinone_where_mobile_type" parameterType="int" resultType="int">
+		select count(*) from allinone where mobile_type = #{mobile_type}
+	</select>
+	<select id="select_allinone_where_mobile_type" parameterType="map" resultType="map">
+		select * from (select row_number() over (order by ${sort} ${direction} nulls last) row_idx, * from (select server_id, user_id, token_id, app_ver, mobile_type, app_num, to_char(create_date, 'YYYY-MM-DD HH24:MI:SS') as create_date from allinone where mobile_type = #{mobile_type}) t1) t2 where row_idx between ((#{page} - 1) * 10) + 1 and (#{page} * 10)
+	</select>
+
+	<select id="count_allinone_where_create_date" parameterType="map" resultType="int">
+		select count(*) from allinone where create_date >= date '${start_create_date}' and create_date &lt; date '${end_create_date}' + interval '1 day'
+	</select>
+	<select id="select_allinone_where_create_date" parameterType="map" resultType="map">
+		select * from (select row_number() over (order by ${sort} ${direction} nulls last) row_idx, * from (select server_id, user_id, token_id, app_ver, mobile_type, app_num, to_char(create_date, 'YYYY-MM-DD HH24:MI:SS') as create_date from allinone where create_date >= date '${start_create_date}' and create_date &lt; date '${end_create_date}' + interval '1 day') t1) t2 where row_idx between ((#{page} - 1) * 10) + 1 and (#{page} * 10)
+	</select>
+
+	<select id="select_allinone_all_excel" parameterType="map" resultType="java.util.LinkedHashMap">
+		select *
+		 from (select row_number() over (order by ${sort} ${direction} nulls last)  as row_idx, server_id, 
+		user_id,token_id, app_ver,mobile_type,app_num,create_date  from allinone_view_0) t1
+	 	<if test="page !=null and !page.equals('')">
+			where row_idx between ((#{page} - 1) * 10) + 1 and (#{page} * 10)
+		</if>
+	</select>
+ 
+	<select id="select_allinone_where_server_id_excel" parameterType="map" resultType="java.util.LinkedHashMap" fetchSize="2048">
+		select  row_idx, server_id, 
+		user_id,token_id, app_ver,
+		  CASE
+            WHEN mobile_type = '1'::smallint THEN 'Android'::text
+            WHEN mobile_type = '2'::smallint THEN 'iOS'::text
+            WHEN mobile_type = '3'::smallint THEN 'iOS-FCM'::text
+            ELSE to_char(mobile_type::double precision, '00009'::text)
+        END AS mobile_type,app_num,create_date from 
+		(select row_number() over (order by ${sort} ${direction} nulls last)  as row_idx, *  from allinone_view_0 where server_id like CONCAT('%',#{server_id} ,'%') )t1
+			<if test="page !=null and !page.equals('')">
+			where row_idx between ((#{page} - 1) * 10) + 1 and (#{page} * 10)
+		</if>
+	</select>
+	<select id="select_allinone_where_user_id_excel" parameterType="map" resultType="java.util.LinkedHashMap" fetchSize="2048">
+		select row_idx, server_id, 
+		user_id,token_id, app_ver,
+        CASE
+            WHEN mobile_type = '1'::smallint THEN 'Android'::text
+            WHEN mobile_type = '2'::smallint THEN 'iOS'::text
+            WHEN mobile_type = '3'::smallint THEN 'iOS-FCM'::text
+            ELSE to_char(mobile_type::double precision, '00009'::text)
+        END AS mobile_type,
+		app_num,create_date from  (
+		select row_number() over (order by ${sort} ${direction} nulls last)  as row_idx, *  
+		from allinone_view_0  where user_id like CONCAT('%', #{user_id}, '%') ) t1
+		<if test="page !=null and !page.equals('')">
+			where row_idx between ((#{page} - 1) * 10) + 1 and (#{page} * 10)
+		</if>
+	</select>
+	<select id="select_allinone_where_mobile_type_excel" parameterType="map" resultType="java.util.LinkedHashMap" fetchSize="2048">
+		select  row_idx, server_id, 
+		user_id,token_id, app_ver, 
+		     CASE
+            WHEN mobile_type = '1'::smallint THEN 'Android'::text
+            WHEN mobile_type = '2'::smallint THEN 'iOS'::text
+            WHEN mobile_type = '3'::smallint THEN 'iOS-FCM'::text
+            ELSE to_char(mobile_type::double precision, '00009'::text)
+        END AS mobile_type,
+        app_num,create_date
+		from (select row_number() over (order by ${sort} ${direction} nulls last)  as row_idx, *  from
+		  allinone_view_0 where mobile_type = #{mobile_type}) t1
+		  <if test="page !=null and !page.equals('')">
+			where row_idx between ((#{page} - 1) * 10) + 1 and (#{page} * 10)
+		</if>
+	</select>
+	<select id="select_allinone_where_create_date_excel" parameterType="map" resultType="java.util.LinkedHashMap" fetchSize="2048">
+	select  
+	row_idx, server_id,user_id,token_id, app_ver,    
+	  CASE
+            WHEN mobile_type = '1'::smallint THEN 'Android'::text
+            WHEN mobile_type = '2'::smallint THEN 'iOS'::text
+            WHEN mobile_type = '3'::smallint THEN 'iOS-FCM'::text
+            ELSE to_char(mobile_type::double precision, '00009'::text)
+        END AS mobile_type,
+        app_num,  
+        to_char(create_date, 'YYYY-MM-DD HH24:MI:SS'::text) AS create_date
+		 from (select row_number() over (order by ${sort} ${direction} nulls last)  as row_idx, * from allinone_view_1 
+		  where create_date >= date '${start_create_date}' and create_date &lt; date '${end_create_date}' + interval '1 day') t1
+		  <if test="page !=null and !page.equals('')">
+			where row_idx between ((#{page} - 1) * 10) + 1 and (#{page} * 10)
+		</if>
+	</select>
+</mapper>
