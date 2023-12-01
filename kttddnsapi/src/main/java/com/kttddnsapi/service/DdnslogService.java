@@ -1,0 +1,28 @@
+package com.kttddnsapi.service;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.kttddnsapi.dao.DdnslogDao;
+
+@Service
+public class DdnslogService
+{
+	@Autowired
+	private DdnslogDao ddnslogDao;
+
+	public boolean insertDdnslog(String mac, String msg)
+	{
+		Map<String, Object> map = new HashMap<>();
+		map.put("mac", mac);
+		map.put("message", msg);
+
+		if(ddnslogDao.insertDdnslog(map) > 0)
+			return true;
+		else
+			return false;
+	}
+}
