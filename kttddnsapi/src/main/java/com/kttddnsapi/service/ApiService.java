@@ -121,6 +121,8 @@ public class ApiService {
         return apiDao.update_users_service_access_rule(map) > 0 ? true : false;
     }
 	
+	
+	
 	public boolean deleteDeviceWhereSysid(String sysid) {
 		if (apiDao.deleteDeviceWhereSysid(sysid) > 0)
 			return true;
@@ -219,6 +221,10 @@ public class ApiService {
 	public String selectDevicePublicIpWhereMac(String mac) {
 		return apiDao.selectDevicePublicIpWhereMac(mac);
 	}
+
+	public String selectDevicePublicIpWhereMac_accessrule(String mac) {
+		return apiDao.selectDevicePublicIpWhereMac_accessrule(mac);
+	}
 	public List<Map<String, Object>> selectDevicePublicIpWhereMacWithAccessRule(String mac) {
       return apiDao.selectDevicePublicIpWhereMacWithAccessRule(mac);
     }
@@ -308,6 +314,15 @@ public class ApiService {
 		return apiDao.selectDeviceWhereInMac2(map);
 	}
 
+	public List<Map<String, Object>> selectDeviceWhereInPhone(
+			String serviceNoListString) {
+		Map<String, Object> map = new HashMap<>();
+		map.put("serviceNoListString", serviceNoListString);
+		return apiDao.selectDeviceWhereInPhone(map);
+	}
+	
+	
+	
 	public Map<String, Object> selectDeviceP2pWhereMac(String mac) {
 		List<Map<String, Object>> list = apiDao.selectDeviceP2pWhereMac(mac);
 		if (list.size() == 0)
@@ -328,6 +343,17 @@ public class ApiService {
 		map.put("serviceNoListString", serviceNoListString);
 		return apiDao.selectServiceWhereInServiceno(map);
 	}
+	
+	public List<Map<String, Object>> selectDevicePhoneWhereInServiceno(
+			String serviceNoListString, String phone) {
+		Map<String, Object> map = new HashMap<>();
+		map.put("serviceNoListString", serviceNoListString);
+		map.put("phone", phone);
+
+		return apiDao.selectDevicePhoneWhereInServiceno(map);
+	}
+	
+	
 
 	public P2pregister getOldP2p(String mac) {
 		P2pregister nP2pregister = new P2pregister();

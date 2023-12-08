@@ -19,7 +19,7 @@ public interface ApiDao
 	public int updateDeviceP2pdeviceWhereMac(String mac);
 
 	public int update_users_service_access_rule(Map<String,Object>map);
-
+	
 	public int updateUserOTP_YN(Map<String, Object> map);
 	
 	public int deleteDeviceWhereSysid(String sysid);
@@ -39,6 +39,8 @@ public interface ApiDao
 	public List<Map<String, Object>> selectDeviceWhereInDomain(Map<String, Object> map);
 	public List<Map<String, Object>> selectDeviceWhereMac(String mac);
 	public String selectDevicePublicIpWhereMac(String mac);
+	public String selectDevicePublicIpWhereMac_accessrule(String mac);
+
 	public List<Map<String, Object>> selectDevicePublicIpWhereMacByMap(Map<String,Object> mac);
 	public List<Map<String, Object>> selectDevicePublicIpWhereMacWithAccessRule(String mac);
 	public List<Map<String, Object>> selectDeviceWhereSysid(Map<String, Object> map);
@@ -58,7 +60,9 @@ public interface ApiDao
 	public List<Map<String, Object>> selectDeviceP2pWhereMac(String mac);
 	public List<Map<String, Object>> selectDeviceP2pWhereMac2(String mac);
 	public List<Map<String, Object>> selectServiceWhereInServiceno(Map<String, Object> map);
-
+	public List<Map<String, Object>> selectDevicePhoneWhereInServiceno(Map<String, Object> map);
+	public List<Map<String, Object>> selectDeviceWhereInPhone(Map<String, Object> map);
+	
 	public List<Map<String, Object>> selectDeviceWhereServicenoCms(String serviceNo);
 
 	public int insertCheckIPValidation(Map<String, Object> map);

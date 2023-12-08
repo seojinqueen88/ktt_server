@@ -9,4 +9,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		INSERT INTO ddnslog (mac, message) VALUES (#{mac}, #{message})
 	</insert>
 
+	<insert id="insertDdnslogPhone" parameterType="map">
+		INSERT INTO ddnslog (mac, phone, service_no, message) VALUES (#{mac}, #{phone}, #{service_no}, #{message})
+	</insert>
+
 </mapper>
