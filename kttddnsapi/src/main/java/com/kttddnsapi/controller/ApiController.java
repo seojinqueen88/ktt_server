@@ -573,7 +573,14 @@ public class ApiController {
 					else
 						result = "nopermission";
 					break;
-
+					
+				case "KTTDDNS_SERVICENO_TO_OTPLIST_1HOUR":
+					requestKey = (String) request.get("auth");
+					if (Encryptions.isAvailableKey(command, requestKey))
+						result = KTTDDNS_SERVICENO_TO_OTPLIST_1HOUR(request, response);
+					else
+						result = "nopermission";
+					break;
 				}
 			} catch (Exception e) {
 
@@ -1081,6 +1088,7 @@ public class ApiController {
 	 */
 	// selectDevicePublicIpWhereMac -> service user 가 1인 경우에 한정하여 발급
 
+	
 	public String KTTDDNS_MAC_TO_MASTERKEY(Map<String, Object> request, Map<String, Object> response) {
 	    String macAddress = (String)request.get("macAddress");
 	    
@@ -1091,11 +1099,15 @@ public class ApiController {
 	    if (apiMac.length() != 12)
 	      return "fail"; 
 	    String ddnsMac = Encryptions.remakeMac(macAddress, true);
+	    logger.debug("ddnsMac" + ddnsMac);
 	    HttpServletRequest httpServletRequest = (
 	      (ServletRequestAttributes)RequestContextHolder.currentRequestAttributes()).getRequest();
 	    String clientIp = this.apiService.getIp(httpServletRequest);
 	    String serverIp = this.apiService.selectDevicePublicIpWhereMac(ddnsMac);
 	     access_rule = this.apiService.selectDevicePublicIpWhereMac_accessrule(ddnsMac);
+		    logger.debug("clientIp: " + clientIp );
+		    logger.debug("serverIp: " + serverIp);
+		    logger.debug("access_rule: " + access_rule);
 	    if (!clientIp.equals(serverIp))
 	      return "nomatchip"; 
 	    if(access_rule == null)
@@ -1107,7 +1119,7 @@ public class ApiController {
 		response.put("access_rule", access_rule.toString());
 	    return "success";
 	  }
-	
+	/*
 	public String KTTDDNS_MAC_TO_MASTERKEY_1(Map<String, Object> request, Map<String, Object> response) {
 		String macAddress = (String) request.get("macAddress");
 		try {
@@ -1147,7 +1159,7 @@ public class ApiController {
 			// System.out.println("service_user : "+ map.get(0).keySet());
 			
 
-			/*20231208 류수석님혼자개발한거라 원래 상용코드로 원복 + accrule만 추가
+			//20231208 류수석님혼자개발한거라 원래 상용코드로 원복 + accrule만 추가
 			 if (map != null && map.size() > 0 && map.get(0).get("service_user") != null
 			 && map.get(0).get("service_user").toString().equals("1"))
 			{
@@ -1169,7 +1181,7 @@ public class ApiController {
 				response.put("access_rule", new String("-2"));
 				logger.info("access_rule : " + response);
 			}
-			*/
+			
 			if (!clientIp.equals(serverIp))
 			{
 			      return "nomatchip"; 
@@ -1187,7 +1199,7 @@ public class ApiController {
 			return "fail";
 		}
 	}
-
+	 */
 	public String KTTDDNS_MAC_TO_P2PUID(Map<String, Object> request, Map<String, Object> response) {
 		String macAddress = (String) request.get("macAddress");
 
@@ -3493,6 +3505,7 @@ public class ApiController {
 	 * response.put("msg", msg); return result; }
 	 */
 
+	//SJ OTP 일괄인증 기능 미인증 단말 요청 API 추가 20231129
 	public String KTTDDNS_SERVICENO_TO_OTPLIST(Map<String, Object> request, Map<String, Object> response) {
 		@SuppressWarnings("unchecked")
 
@@ -3518,7 +3531,6 @@ public class ApiController {
 					serviceNoListString.append(serviceNo);
 					serviceNoListString.append("',");
 				}
-
 			}
 			// 마지막 ,(쉼표)제거
 			serviceNoListString.delete(serviceNoListString.toString().length() - 1,
@@ -3534,15 +3546,15 @@ public class ApiController {
 			if (logger.isDebugEnabled())
 				e.printStackTrace();
 		}
+		//ktt test server용
+		List<Map<String, Object>> deviceListOrg = apiService.selectDevicePhoneWhereInServicenoKttTEST(serviceNoListString.toString(), phone);
 
-		List<Map<String, Object>> deviceListOrg = apiService
-				.selectDevicePhoneWhereInServiceno(serviceNoListString.toString(), phone);
-
+		//ktt 상용 서버 용
+		//List<Map<String, Object>> deviceListOrg = apiService.selectDevicePhoneWhereInServiceno(serviceNoListString.toString(), phone);
+		
 		if (deviceListOrg != null) {
 			final List<Map<String, Object>> deviceList = new ArrayList<>();
 			deviceListOrg.parallelStream().forEach(deviceItem -> {
-
-				// int phone = apiService.verString2Int(deviceItem.get("phone").toString());
 
 				deviceList.add(deviceItem);
 			});
@@ -3554,6 +3566,68 @@ public class ApiController {
 		return "success";
 	}
 
+	//SJ OTP 일괄인증 기능1시간 이내 미인증 단말 요청 API 추가 20231129
+		public String KTTDDNS_SERVICENO_TO_OTPLIST_1HOUR(Map<String, Object> request, Map<String, Object> response) {
+			@SuppressWarnings("unchecked")
+
+			ArrayList<String> serviceNoList = (ArrayList<String>) request.get("serviceNoList");
+			String phone = String.valueOf(request.get("phone"));
+
+			 logger.debug("phone :" + phone);
+			if (serviceNoList == null || phone == null) {
+				return "fail";
+			}
+			if (serviceNoList.size() == 0) {
+				List<Map<String, Object>> deviceList = new ArrayList<>();
+				response.put("deviceList", deviceList);
+				deviceList = null;
+				return "success";
+			}
+
+			StringBuffer serviceNoListString = new StringBuffer(1024);
+			try {
+				for (String serviceNo : serviceNoList) {
+					if (serviceNo.length() > 7) {
+						serviceNoListString.append("'");
+						serviceNoListString.append(serviceNo);
+						serviceNoListString.append("',");
+					}
+				}
+				// 마지막 ,(쉼표)제거
+				serviceNoListString.delete(serviceNoListString.toString().length() - 1,
+						serviceNoListString.toString().length());
+
+				if (serviceNoListString.toString().length() == 0) {
+					List<Map<String, Object>> deviceList = new ArrayList<>();
+					response.put("macList", deviceList);
+					deviceList = null;
+					return "success";
+				}
+			} catch (Exception e) {
+				if (logger.isDebugEnabled())
+					e.printStackTrace();
+			}
+			//ktt test server용
+			List<Map<String, Object>> deviceListOrg = apiService.selectDeviceOTP1HourTimeWhereInServicenoKttTEST(serviceNoListString.toString(), phone);
+
+			//ktt 상용 서버 용
+			//List<Map<String, Object>> deviceListOrg = apiService.selectDeviceOTP1HourTimeWhereInServiceno(serviceNoListString.toString(), phone);
+
+			
+			if (deviceListOrg != null) {
+				final List<Map<String, Object>> deviceList = new ArrayList<>();
+				deviceListOrg.parallelStream().forEach(deviceItem -> {
+					
+					deviceList.add(deviceItem);
+				});
+
+				response.put("macList", deviceList);
+			} else {
+				response.put("macList", new ArrayList<>());
+			}
+			return "success";
+		}
+		
 	/**
 	 * 
 	 * @Method Name : KTTDDNS_INFECTION_LOG

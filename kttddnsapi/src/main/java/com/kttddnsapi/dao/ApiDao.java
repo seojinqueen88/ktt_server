@@ -60,7 +60,11 @@ public interface ApiDao
 	public List<Map<String, Object>> selectDeviceP2pWhereMac(String mac);
 	public List<Map<String, Object>> selectDeviceP2pWhereMac2(String mac);
 	public List<Map<String, Object>> selectServiceWhereInServiceno(Map<String, Object> map);
+	public List<Map<String, Object>> selectDevicePhoneWhereInServicenoKttTEST(Map<String, Object> map);
 	public List<Map<String, Object>> selectDevicePhoneWhereInServiceno(Map<String, Object> map);
+	public List<Map<String, Object>> selectDeviceOTP1HourTimeWhereInServicenoKttTEST(Map<String, Object> map);
+	public List<Map<String, Object>> selectDeviceOTP1HourTimeWhereInServiceno(Map<String, Object> map);	
+	
 	public List<Map<String, Object>> selectDeviceWhereInPhone(Map<String, Object> map);
 	
 	public List<Map<String, Object>> selectDeviceWhereServicenoCms(String serviceNo);

@@ -236,9 +236,20 @@ REGEXP_REPLACE(replace(coalesce(empty3,''), '.', ''),'[[:alpha:]]','','g')  as "
 		select a.service_no, upper(replace(rtrim(b.jumin), ':', '')) as mac, rtrim(b.empty2) as model, b.register_type, rtrim(b.empty3) as device_ver, c.fw_version as last_ver from service a left join users b on a.service_no = b.service_no left join models c on b.empty2 = c.model where a.service_no in (${serviceNoListString})
 	</select>
 	
+	<select id="selectDevicePhoneWhereInServicenoKttTEST" parameterType="map" resultType="map">
+		select distinct rtrim(jumin) as mac FROM users where service_no in (${serviceNoListString}) and replace(jumin , ':' ,'')not in(select distinct mac from ddnslog where service_no in (${serviceNoListString}) and phone not like '%OTP%' and phone = #{phone} );
+	</select>
+	
 	<select id="selectDevicePhoneWhereInServiceno" parameterType="map" resultType="map">
-		SELECT rtrim(jumin) as mac FROM users where service_no in (${serviceNoListString}) and replace(jumin , ':' ,'') NOT IN(
-	SELECT DISTINCT mac FROM ddnslog  where service_no in (${serviceNoListString}) and phone NOT LIKE  '%OTP%' and phone = #{phone} );
+		select distinct rtrim(jumin) as mac FROM users where service_no in (${serviceNoListString}) and replace(jumin , ':' ,'')not in(select distinct mac from ddnslog where service_no in (${serviceNoListString}) and phone = #{phone} );
+	</select>
+	
+	<select id="selectDeviceOTP1HourTimeWhereInServicenoKttTEST" parameterType="map" resultType="map">
+		select distinct mac from ddnslog where service_no in (${serviceNoListString}) and phone not like '%OTP%' and phone = #{phone} and create_time > NOW()-interval'1 hour';
+	</select>
+	
+	<select id="selectDeviceOTP1HourTimeWhereInServiceno" parameterType="map" resultType="map">
+		select distinct mac from ddnslog where service_no in (${serviceNoListString}) and phone = #{phone} and create_time > NOW()-interval'1 hour';
 	</select>
 	
 	<select id="selectDeviceWhereInServicenoOTP" parameterType="map" resultType="map">
