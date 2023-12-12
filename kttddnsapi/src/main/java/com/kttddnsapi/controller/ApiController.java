@@ -1119,7 +1119,7 @@ public class ApiController {
 		response.put("access_rule", access_rule.toString());
 	    return "success";
 	  }
-	/*
+	/*20231208 류수석님혼자개발한거라 원래 상용코드로 원복 + accrule만 추가
 	public String KTTDDNS_MAC_TO_MASTERKEY_1(Map<String, Object> request, Map<String, Object> response) {
 		String macAddress = (String) request.get("macAddress");
 		try {
@@ -1159,7 +1159,7 @@ public class ApiController {
 			// System.out.println("service_user : "+ map.get(0).keySet());
 			
 
-			//20231208 류수석님혼자개발한거라 원래 상용코드로 원복 + accrule만 추가
+
 			 if (map != null && map.size() > 0 && map.get(0).get("service_user") != null
 			 && map.get(0).get("service_user").toString().equals("1"))
 			{
@@ -2062,6 +2062,15 @@ public class ApiController {
 			msg.append(serviceNo);
 			msg.append(", PHONE : ");
 			msg.append(phone);
+			
+			String apiMac = Encryptions.remakeMac(macAddress, false);
+
+			if (apiMac.length() != 12) {
+				return "fail";
+			}
+
+			String ddnsMac = Encryptions.remakeMac(macAddress, true);
+			
 			// ddnslogService.insertDdnslogPhone(phone);
 			ddnslogService.insertDdnslogPhone(macAddress, phone, serviceNo, msg.toString());
 			if (request.containsKey("CHANGE_OTP_YN_FORCE")) {
@@ -2079,13 +2088,7 @@ public class ApiController {
 				msg = null;
 				return "fail";
 			}
-			String apiMac = Encryptions.remakeMac(macAddress, false);
 
-			if (apiMac.length() != 12) {
-				return "fail";
-			}
-
-			String ddnsMac = Encryptions.remakeMac(macAddress, true);
 			Integer access_rule = 0;
 			List<Map<String, Object>> map = null;
 
@@ -2098,19 +2101,47 @@ public class ApiController {
 
 				if (m1.matches() == true || (m12.matches() != false || m22.matches() != false)) {
 					map = apiService.selectDevicePublicIpWhereMac(ddnsMac, ip, 0);
+					logger.debug("ddnsMac : "+ ddnsMac, "ip :"+ ip);
+
 				}
 			} else {
 				map = apiService.selectDevicePublicIpWhereMac(ddnsMac, "127.0.0.1", 0);
+				logger.debug("ddnsMac : "+ ddnsMac, "127.0.0.1");
 			}
+		
+			// SJ 통합버전 4.0.0 버전 업그래이드 시 개선 추가(20231128)
 
+			Map<String, Object> device = null;
+
+			device = apiService.selectDeviceWhereMac4(Encryptions.remakeMac(ddnsMac, true));
+			int device_ver = apiService.verString2Int(device.get("device_ver").toString());
+			logger.debug(" device_ver : " + device_ver);
+
+			if (device_ver >= apiService.verString2Int("V4.0.0")) {
+				access_rule = 2;
+				if (apiService.update_users_service_no_access_rule(ddnsMac, access_rule) == true) {
+					logger.debug(" !!!!!!!!!!!!!!!!!!!!!");
+					logger.debug(" 버전높아 access_rule : " + access_rule);
+				}
+			} else {
+				access_rule = Integer.valueOf(map.get(0).get("access_rule").toString());
+				logger.debug(" ??????????????????????");
+				logger.debug(" 버전낮아 access_rule : " + access_rule);
+
+			}
+			logger.debug(" 최종 access_rule  : " + access_rule);
+			response.put("access_rule", access_rule.toString()); // access_rule = 0 --> 전체 허용(올레, 스마트아이즈, 통합앱) 1 -->
+																	// 올레, 통합앱, 2 --> 통합앱
+			return "success";
+
+			
+
+			
+			/*
 			if (map != null && map.size() > 0 && map.get(0).get("service_user") != null
 					&& map.get(0).get("service_user").toString().equals("1")) {
 
-				/*
-				 * access_rule = Integer.valueOf(map.get(0).get("access_rule").toString());
-				 * response.put("access_rule", access_rule.toString()); // access_rule = 0 -->
-				 * 전체 허용(올레, 스마트아이즈, 통합앱) 1 --> 올레, 통합앱, 2 --> 통합앱 return "success";
-				 */
+				
 				// SJ 통합버전 4.0.0 버전 업그래이드 시 개선 추가(20231128)
 
 				Map<String, Object> device = null;
@@ -2139,7 +2170,7 @@ public class ApiController {
 
 			} else {
 				return "nomatchip";
-			}
+			}*/
 
 		} catch (Exception e) {
 			response.clear();
@@ -3505,7 +3536,7 @@ public class ApiController {
 	 * response.put("msg", msg); return result; }
 	 */
 
-	//SJ OTP 일괄인증 기능 미인증 단말 요청 API 추가 20231129
+	//SJ OTP 일괄인증 기능 미인증 단말 요청 API요청20231129 / 추가20231210
 	public String KTTDDNS_SERVICENO_TO_OTPLIST(Map<String, Object> request, Map<String, Object> response) {
 		@SuppressWarnings("unchecked")
 
@@ -3566,7 +3597,7 @@ public class ApiController {
 		return "success";
 	}
 
-	//SJ OTP 일괄인증 기능1시간 이내 미인증 단말 요청 API 추가 20231129
+	//SJ OTP 일괄인증 기능1시간 이내 미인증 단말 요청 API요청20231129 / 추가20231211
 		public String KTTDDNS_SERVICENO_TO_OTPLIST_1HOUR(Map<String, Object> request, Map<String, Object> response) {
 			@SuppressWarnings("unchecked")
 
