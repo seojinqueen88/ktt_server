@@ -161,6 +161,8 @@ public class ApiService {
 		map.put("sysidStrings", sysidStrings);
 		return apiDao.selectDeviceInSysidForDeviceinfo2(map);
 	}
+	
+	
 	public List<Map<String, Object>> selectDeviceWhereInServicenoForApp(
 			String serviceNoListString) {
 		Map<String, Object> map = new HashMap<>();
@@ -168,7 +170,7 @@ public class ApiService {
 		map.put("serviceNoListString", serviceNoListString);
 		///// selectDeviceWhereInServicenoForApp_new_version true로 설정 시 select 한 시점이 dB서버에 기록 됨.
 		///// false로 할 경우 이전과 같은 형태로 조회 됨.
-	 map.put("selectDeviceWhereInServicenoForApp_new_version",true);
+	 map.put("selectDeviceWhereInServicenoForApp_new_version",false);
 	  /// map.put("selectDeviceWhereInServicenoForApp_new_version",false);
 		/////
 		///System.out.println("selectDeviceWhereInServicenoForApp");
@@ -225,6 +227,7 @@ public class ApiService {
 	public String selectDevicePublicIpWhereMac_accessrule(String mac) {
 		return apiDao.selectDevicePublicIpWhereMac_accessrule(mac);
 	}
+	
 	public List<Map<String, Object>> selectDevicePublicIpWhereMacWithAccessRule(String mac) {
       return apiDao.selectDevicePublicIpWhereMacWithAccessRule(mac);
     }
@@ -300,6 +303,15 @@ public class ApiService {
 		map.put("serviceNoListString", serviceNoListString);
 		return apiDao.selectDeviceWhereInServicenoOTP(map);
 	}
+	
+	public List<Map<String, Object>> selectDeviceMAKERWhereInServiceno(
+			String serviceNoListString) {
+		Map<String, Object> map = new HashMap<>();
+		map.put("serviceNoListString", serviceNoListString);
+		return apiDao.selectDeviceMAKERWhereInServiceno(map);
+	}
+	
+	
 	public List<Map<String, Object>> selectDeviceWhereInMac(
 			String macListString) {
 		Map<String, Object> map = new HashMap<>();

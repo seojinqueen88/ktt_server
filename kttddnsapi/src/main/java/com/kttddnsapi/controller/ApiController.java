@@ -727,6 +727,51 @@ public class ApiController {
 		return "success";
 	}
 
+	  public String KTTDDNS_SERVICENO_TO_APP_DEVICEINFO(Map<String, Object> request, Map<String, Object> response) {
+		    ArrayList<String> serviceNoList = (ArrayList<String>)request.get("serviceNoList");
+		    if (serviceNoList == null)
+		      return "fail"; 
+		    if (serviceNoList.size() == 0) {
+		      List<Map<String, Object>> list = new ArrayList<>();
+		      response.put("deviceList", list);
+		      return "success";
+		    } 
+		    String serviceNoListString = "";
+		    for (int i = 0; i < serviceNoList.size(); i++) {
+		      String serviceNo = serviceNoList.get(i);
+		      if (serviceNo.length() != 0)
+		        if (serviceNoListString.length() == 0) {
+		          serviceNoListString = String.valueOf(serviceNoListString) + "'" + serviceNo + "'";
+		        } else {
+		          serviceNoListString = String.valueOf(serviceNoListString) + ", '" + serviceNo + "'";
+		        }  
+		    } 
+		    if (serviceNoListString.length() == 0) {
+		      List<Map<String, Object>> list = new ArrayList<>();
+		      response.put("deviceList", list);
+		      return "success";
+		    } 
+		    List<Map<String, Object>> deviceListOrg = this.apiService.selectDeviceWhereInServicenoForApp(serviceNoListString);
+		    List<Map<String, Object>> deviceList = new ArrayList<>();
+		    for (Map<String, Object> deviceItem : deviceListOrg) {
+
+		    	//231214 sjlee xml add otp_yn != 0  
+		    	if ((((Integer)deviceItem.get("domainType")).intValue() == 20 || 
+		    		  ((Integer)deviceItem.get("domainType")).intValue() == 21))
+		    		continue; 
+		      deviceList.add(deviceItem);
+		   
+		    }
+		    for (Map<String, Object> deviceItem : deviceList) {
+		      String noColonMac = (String)deviceItem.get("macAddress");
+		      
+		      deviceItem.put("masterKey", Encryptions.encryptMasterkey(Encryptions.getSHA(String.valueOf(noColonMac) + "KTT_MASTER", 1)));
+		    } 
+		    response.put("deviceList", deviceList);
+		    return "success";
+		  }
+	
+	
 	/**
 	 * 
 	 * @Method Name : KTTDDNS_SERVICENO_TO_APP_DEVICEINFO
@@ -736,7 +781,7 @@ public class ApiController {
 	 * @Method 설명 :고객통합앱 서버에서 SytemID를 이용하여 영상장비 정보를 얻어오는 기능 (C)
 	 * @param request
 	 * @param response
-	 * @return
+	 * @return 류수석코드
 	 */
 	/**
 	 * SW 주장치 연동 및 영상 시스템 고도화 개발 시방서 V3 (002) 에 따라 OTP_YN 이 1 인 경우와 register_type이
@@ -744,7 +789,7 @@ public class ApiController {
 	 * 경우에는 해당 정보를 같이 반영한다.
 	 */
 
-	public String KTTDDNS_SERVICENO_TO_APP_DEVICEINFO(Map<String, Object> request, Map<String, Object> response) {
+	public String KTTDDNS_SERVICENO_TO_APP_DEVICEINFO_1(Map<String, Object> request, Map<String, Object> response) {
 		@SuppressWarnings("unchecked")
 
 		final ArrayList<String> serviceNoList = (ArrayList<String>) request.get("serviceNoList");
@@ -862,7 +907,6 @@ public class ApiController {
 								int tDeviceVer = apiService.verString2Int(strDeviceVer);
 								if (tDeviceVer != 0 && tDeviceVer >= apiService.verString2Int("V3.2.0")) {
 									deviceItem.put("otp_batch_authentication_avaiable", true);
-									logger.info("V3.2.0 : ??? " + tDeviceVer);
 								} else {
 									// FROM DB
 									int tDeviceOtpAvailableVer = deviceItem.containsKey("last_ver")
@@ -871,12 +915,10 @@ public class ApiController {
 
 									if (tDeviceVer != 0 && tDeviceOtpAvailableVer > -1) {
 										deviceItem.put("otp_batch_authentication_avaiable", true);
-										logger.info("tDeviceVer  : " + tDeviceVer);
-										logger.info("tDeviceOtpAvailableVer  : " + tDeviceOtpAvailableVer);
+
 
 									} else {
 										deviceItem.put("otp_batch_authentication_avaiable", false);
-										logger.info("false  : " + deviceItem);
 
 									}
 									/*
@@ -1105,9 +1147,7 @@ public class ApiController {
 	    String clientIp = this.apiService.getIp(httpServletRequest);
 	    String serverIp = this.apiService.selectDevicePublicIpWhereMac(ddnsMac);
 	     access_rule = this.apiService.selectDevicePublicIpWhereMac_accessrule(ddnsMac);
-		    logger.debug("clientIp: " + clientIp );
-		    logger.debug("serverIp: " + serverIp);
-		    logger.debug("access_rule: " + access_rule);
+
 	    if (!clientIp.equals(serverIp))
 	      return "nomatchip"; 
 	    if(access_rule == null)
@@ -2101,12 +2141,10 @@ public class ApiController {
 
 				if (m1.matches() == true || (m12.matches() != false || m22.matches() != false)) {
 					map = apiService.selectDevicePublicIpWhereMac(ddnsMac, ip, 0);
-					logger.debug("ddnsMac : "+ ddnsMac, "ip :"+ ip);
 
 				}
 			} else {
 				map = apiService.selectDevicePublicIpWhereMac(ddnsMac, "127.0.0.1", 0);
-				logger.debug("ddnsMac : "+ ddnsMac, "127.0.0.1");
 			}
 		
 			// SJ 통합버전 4.0.0 버전 업그래이드 시 개선 추가(20231128)
@@ -2115,21 +2153,14 @@ public class ApiController {
 
 			device = apiService.selectDeviceWhereMac4(Encryptions.remakeMac(ddnsMac, true));
 			int device_ver = apiService.verString2Int(device.get("device_ver").toString());
-			logger.debug(" device_ver : " + device_ver);
-
 			if (device_ver >= apiService.verString2Int("V4.0.0")) {
 				access_rule = 2;
 				if (apiService.update_users_service_no_access_rule(ddnsMac, access_rule) == true) {
-					logger.debug(" !!!!!!!!!!!!!!!!!!!!!");
-					logger.debug(" 버전높아 access_rule : " + access_rule);
 				}
 			} else {
 				access_rule = Integer.valueOf(map.get(0).get("access_rule").toString());
-				logger.debug(" ??????????????????????");
-				logger.debug(" 버전낮아 access_rule : " + access_rule);
 
 			}
-			logger.debug(" 최종 access_rule  : " + access_rule);
 			response.put("access_rule", access_rule.toString()); // access_rule = 0 --> 전체 허용(올레, 스마트아이즈, 통합앱) 1 -->
 																	// 올레, 통합앱, 2 --> 통합앱
 			return "success";
@@ -2658,57 +2689,130 @@ public class ApiController {
 				msg = "서비스번호가 존재하지 않습니다.";
 				break;
 			}
-
-			// List<Map<String, Object>> tmpDeviceList =
-			// apiService.selectDeviceWhereInServiceno(serviceNoListString);
+			// List<Map<String, Object>> tmpDeviceList = apiService.selectDeviceWhereInServiceno(serviceNoListString);
 
 			// SJ 통합버전 4.0.0 버전 업그래이드 시 개선 추가(20231128)
 			List<Map<String, Object>> tmpDeviceList = apiService.selectDeviceWhereInServicenoOTP(serviceNoListString);
 			List<Map<String, Object>> deviceList = new ArrayList<>();
+			
+			List<Map<String, Object>> tmpRifaDeviceList = apiService.selectDeviceMAKERWhereInServiceno(serviceNoListString);
+
+			int rifa_device = tmpRifaDeviceList.size();
 			int count = 0;
 
+			String macList = "";
+			
+			for (Map<String, Object> tmpRifaDevice : tmpRifaDeviceList) {
+				//int otp_yn = apiService.verString2Int(tmpRifaDevice.get("otp_yn").toString());
+				int otp_yn = tmpRifaDevice.containsKey("otp_yn") ? (int) tmpRifaDevice.get("otp_yn") : 0;
+
+				if (tmpRifaDevice.get("mac") == null) {
+					continue;
+				}
+				if(otp_yn != 3)
+				{
+					if (macList.length() == 0)
+					{
+						macList += ("'" + tmpRifaDevice.get("mac") + "'");
+					}
+					else
+					{
+						macList += (", '" + tmpRifaDevice.get("mac") + "'");
+					}
+				}			
+			}
+			 
+			boolean allUpgrede = true; 
+			
 			for (Map<String, Object> tmpDevice : tmpDeviceList) {
+				int device_ver = apiService.verString2Int(tmpDevice.get("device_ver").toString());
+				int last_ver = apiService.verString2Int(tmpDevice.get("last_ver").toString());
+				
+				if (device_ver != last_ver) 
+				{
+					allUpgrede = false; 
+					break;
+				}
+			}
+			
+			for (Map<String, Object> tmpDevice : tmpDeviceList) {
+
 				if (tmpDevice.get("mac") == null) {
 					count++;
 					continue;
 				}
-
+				
 				Map<String, Object> device = new HashMap<>();
 				device.put("serviceNo", tmpDevice.get("service_no"));
 				device.put("registerType", tmpDevice.get("register_type"));
 				device.put("macAddress", tmpDevice.get("mac"));
-
+				
+				
 				/* KTTDDNS_SERVICE_REGISTER 로 등록한 경우 device_ver 이 존재하지 않는다. */
 				if (tmpDevice.get("device_ver") == null || tmpDevice.get("device_ver").toString().length() == 0) {
 					device.put("model", "");
 					device.put("fwUp", 1);
 				} else if (tmpDevice.get("last_ver") == null || tmpDevice.get("last_ver").toString().length() == 0) {
 					msg = "모델 코드가 존재하지 않습니다.";
-					// device.put("model", "");
-					// device.put("fwUp", 1);
-					// device.put("msg device", msg);
 					break;
 				} else {
+					
 					int device_ver = apiService.verString2Int(tmpDevice.get("device_ver").toString());
 					int last_ver = apiService.verString2Int(tmpDevice.get("last_ver").toString());
 
 					if (device_ver == 0 || last_ver == 0) {
 						msg = "펌웨어 버전 표시가 잘못되었습니다.";
-
-						// device.put("model", "");
-						// device.put("fwUp", 1);
-						// device.put("msg device", msg);
 						break;
-					} else {
+					}
+										
+					//String maker = tmpDevice.containsKey("maker") ? tmpDevice.get("maker").toString(): "";
+					int otp_yn = tmpDevice.containsKey("otp_yn") ? (int) tmpDevice.get("otp_yn") : 0;
+
+					String maker = tmpDevice.get("maker").toString();
+					String tmpMaker = "RIFAT";
+					
+					if (allUpgrede) 
+					{
+						if(maker.trim().equals(tmpMaker))
+						{
+							if(rifa_device > 0 && rifa_device <= 5)
+							{
+								if(otp_yn == 3)
+								{
+									device.put("model", tmpDevice.get("model"));
+									device.put("fwUp", 0);
+								}
+								else
+								{
+									response.put("deviceList", deviceList);
+									msg = "장비에서 [우클릭] →[시스템]→[사용자수정]에서 OTP인증 후 비밀번호 변경을 진행해주세요. (" + macList + ")";
+									result = "success";
+									break;
+								}
+							}
+						}
+		
+						else if(!maker.trim().equals(tmpMaker) || rifa_device > 5)
+						{
+							device.put("model", tmpDevice.get("model"));
+							device.put("fwUp", 0);
+
+						}
+					}
+					else  
+					{
 						device.put("model", tmpDevice.get("model"));
 						device.put("fwUp", (device_ver < last_ver) ? 1 : 0);
-
+					}
+						
 						// SJ add
+/*
 						int access_rule = tmpDevice.containsKey("access_rule") ? (int) tmpDevice.get("access_rule") : 0;
 						int otp_yn = tmpDevice.containsKey("otp_yn") ? (int) tmpDevice.get("otp_yn") : 0;
 						logger.debug("access_rule : " + access_rule);
 						logger.debug("otp_yn :" + otp_yn);
-
+*/
+					/*
 						if ((device_ver >= apiService.verString2Int("V4.0.0")) && (otp_yn == 0)) {
 							// response.put("fwUp", 1);
 							device.put("fwUp", 1);
@@ -2717,8 +2821,8 @@ public class ApiController {
 							// device.put("msg device", msg);
 							logger.debug(msg);
 							// break;
-						}
-					}
+						}*/
+					//}
 
 				}
 				deviceList.add(device);
@@ -2729,13 +2833,14 @@ public class ApiController {
 				break;
 
 			response.put("deviceList", deviceList);
-
+			/*
 			if (!bOtpYnError) {
 				msg = "정상적으로 처리 되었습니다.";
 			} else {
-				msg = "장비에서 [우클릭] →[시스템]→[사용자수정]에서 OTP인증 후 비밀번호 변경을 진행해주세요";
-			}
-			result = "success";
+				msg = "장비에서 [우클릭] →[시스템]→[사용자수정]에서 OTP인증 후 비밀번호 변경을 진행해주세요. (" + macList + ")";
+			}*/
+		      msg = "정상적으로 처리 되었습니다.";
+		      result = "success";
 		} while (false);
 
 		response.put("msg", msg);

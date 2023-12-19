@@ -124,7 +124,7 @@
 	from users as u left join models b on u.empty2 = b.model  , (select  jumin from updated_log_call ) as t where u.jumin = t.jumin ORDER BY domain ASC ,otp_yn DESC ;
 		</when>
 		<otherwise>
-			select service_no as "serviceNo", rtrim(domain) as "fullDomain", split_part(domain, '.', 1) as "domainName", case when substring(domain, char_length(split_part(domain, '.', 1)) + 2) = 'octdvr.co.kr' then 20 when substring(domain, char_length(split_part(domain, '.', 1)) + 2) = 'octnvr.co.kr' then 21 when substring(domain, char_length(split_part(domain, '.', 1)) + 2) = 'telecopview.co.kr' then 22 when substring(domain, char_length(split_part(domain, '.', 1)) + 2) = 'telecopviewtest.co.kr' then 23 else 0 end as "domainType", rtrim(port) as port, p2p_uid as "p2pUid", p2p_priority as "p2pPriority", upper(replace(rtrim(jumin), ':', '')) as "macAddress" , otp_yn as "otp_yn" from users where service_user = 1 and service_no in (${serviceNoListString})
+			select service_no as "serviceNo", rtrim(domain) as "fullDomain", split_part(domain, '.', 1) as "domainName", case when substring(domain, char_length(split_part(domain, '.', 1)) + 2) = 'octdvr.co.kr' then 20 when substring(domain, char_length(split_part(domain, '.', 1)) + 2) = 'octnvr.co.kr' then 21 when substring(domain, char_length(split_part(domain, '.', 1)) + 2) = 'telecopview.co.kr' then 22 when substring(domain, char_length(split_part(domain, '.', 1)) + 2) = 'telecopviewtest.co.kr' then 23 else 0 end as "domainType", rtrim(port) as port, p2p_uid as "p2pUid", p2p_priority as "p2pPriority", upper(replace(rtrim(jumin), ':', '')) as "macAddress" , otp_yn as "otp_yn" from users where service_user = 1 and otp_yn != 0 and service_no in (${serviceNoListString})
 		</otherwise>
 		</choose>
 	</select>
@@ -245,17 +245,21 @@ REGEXP_REPLACE(replace(coalesce(empty3,''), '.', ''),'[[:alpha:]]','','g')  as "
 	</select>
 	
 	<select id="selectDeviceOTP1HourTimeWhereInServicenoKttTEST" parameterType="map" resultType="map">
-		select distinct mac from ddnslog where service_no in (${serviceNoListString}) and phone not like '%OTP%' and phone = #{phone} and create_time > NOW()-interval'1 hour';
+		select distinct rtrim(jumin) as mac FROM users where service_no in (${serviceNoListString}) and replace(jumin , ':' ,'')not in(select distinct mac from ddnslog where service_no in (${serviceNoListString}) and phone not like '%OTP%' and phone = #{phone} and NOW()-interval'1 hour' > create_time );
 	</select>
 	
 	<select id="selectDeviceOTP1HourTimeWhereInServiceno" parameterType="map" resultType="map">
-		select distinct mac from ddnslog where service_no in (${serviceNoListString}) and phone = #{phone} and create_time > NOW()-interval'1 hour';
+				select distinct rtrim(jumin) as mac FROM users where service_no in (${serviceNoListString}) and replace(jumin , ':' ,'')not in(select distinct mac from ddnslog where service_no in (${serviceNoListString}) and phone = #{phone} and NOW()-interval'1 hour' > create_time );
 	</select>
 	
 	<select id="selectDeviceWhereInServicenoOTP" parameterType="map" resultType="map">
-		select a.service_no, upper(replace(rtrim(b.jumin), ':', '')) as mac, rtrim(b.empty2) as model, b.register_type, b.otp_yn, b.access_rule, b.last_access_master_key_time, rtrim(b.empty3) as device_ver, c.fw_version as last_ver from service a left join users b on a.service_no = b.service_no left join models c on b.empty2 = c.model where a.service_no in (${serviceNoListString})
+		select a.service_no, upper(replace(rtrim(b.jumin), ':', '')) as mac, rtrim(b.empty2) as model, b.register_type, b.otp_yn, b.access_rule, b.maker, b.last_access_master_key_time, rtrim(b.empty3) as device_ver, c.fw_version as last_ver from service a left join users b on a.service_no = b.service_no left join models c on b.empty2 = c.model where a.service_no in (${serviceNoListString})
 	</select>
 	
+	<select id="selectDeviceMAKERWhereInServiceno" parameterType="map" resultType="map">
+		select distinct rtrim(jumin) as mac , otp_yn, maker from users where service_no in (${serviceNoListString})and maker like '%RIFAT%'
+	</select>
+		
 	<select id="selectDeviceWhereInMac" parameterType="map" resultType="map">
 		select service_no, register_type from users where jumin in (${macListString})
 	</select>
