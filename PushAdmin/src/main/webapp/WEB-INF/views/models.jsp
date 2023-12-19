@@ -214,16 +214,15 @@ function delete_models()
 						</td>
 					</tr>
 					<tr align="center">
-						<td width="22%"></td>
-						<td width="5%">
+						<td width="35%"></td>
+						<td width="6">
 							<c:if test="${login_member.member_auth == 2 }">
 								<input type="checkbox" id="ck_all" onclick="toggle_all_check()">
 							</c:if>
 						</td>
-						<td width="13%" class="select font1"><span style="cursor:pointer;" onclick="location.href='/PushAdmin/models_page.do?type=${type }&sort=model&direction=${direction == 'desc' ? 'asc' : 'desc' }&search_type=${search_type }&search_word=${search_word }'">모델</span></td>
+						<td width="15%" class="select font1"><span style="cursor:pointer;" onclick="location.href='/PushAdmin/models_page.do?type=${type }&sort=model&direction=${direction == 'desc' ? 'asc' : 'desc' }&search_type=${search_type }&search_word=${search_word }'">모델</span></td>
 						<td width="19%" class="select font1"><span style="cursor:pointer;" onclick="location.href='/PushAdmin/models_page.do?type=${type }&sort=fw_version&direction=${direction == 'desc' ? 'asc' : 'desc' }&search_type=${search_type }&search_word=${search_word }'">FW 버전</span></td>
-						<td width="19%" class="select font1"><span style="cursor:pointer;" onclick="location.href='/PushAdmin/models_page.do?type=${type }&sort=fw_otp_batch_base_rule&direction=${direction == 'desc' ? 'asc' : 'desc' }&search_type=${search_type }&search_word=${search_word }'">OTP 지원 버전</span></td>
-						<td width="22%"></td>
+						<td width="20%"></td>
 					</tr>
 					<tr height="0.1">
 						<td colspan="8">
@@ -240,7 +239,6 @@ function delete_models()
 							</td>
 							<td>${models_list.model }</td>
 							<td>${models_list.fw_version }</td>
-							<td>${models_list.fw_otp_batch_base_rule }</td>
 							<td></td>
 						</tr>
 						<tr height="0.1">
@@ -279,18 +277,18 @@ function delete_models()
 					</tr>
 					<tr height="30">
 						<td></td>
-						<td colspan="4" align="center">
+						<td colspan="3" align="center">
 							<form id="search_form" name="search_form" action="/PushAdmin/models_page.do">
 								<select name="search_type" id="search_type">
 									<option value=0 <c:if test="${search_type == 0}">selected</c:if>>모델</option>
 									<option value=1 <c:if test="${search_type == 1}">selected</c:if>>FW 버전</option>
-									<option value=2 <c:if test="${search_type == 2}">selected</c:if>>OTP 지원 버전</option>
 								</select>
 								<input id="search_word" name="search_word" style="vertical-align: 5%; width: 140px" value="${search_word }" maxlength="40">
 								<input id="search_btn" type="button" style="background: #000000; color: white;" value="검색">
 								<input type="hidden" name="type" id="type" value="models_search">
 							</form>
 						</td>
+						
 						<td colspan="3" align="right"> 
 							<form id="excel_form" name="excel_form" action="/PushAdmin/models_excel.xlsx">엑셀 다운로드&nbsp;&nbsp;
 								<input id="excel_btn" type="button" style="background: #000000; color: white;" value="현재 페이지">
@@ -322,12 +320,13 @@ function delete_models()
 					</tr>
 					<tr height="30" align="center">
 						<td></td>
-						<td colspan="4" align="center">
+						<td colspan="3" align="center">
 							<c:if test="${login_member.member_auth == 2 }">
 								<input id="add_btn" type="button" style="background: #000000; color: white; width: 70px;" value="추가">
 								<input id="delete_btn" type="button" style="background: #000000; color: white; width: 70px;" value="삭제" onclick="javascript:delete_models()">
 							</c:if>
 						</td>
+						<td></td>
 						<td colspan="2" align="right">
 							<input type="button" onclick="location.href='/PushAdmin/models_page.do'" style="background: #000000; color: white;" value="전체 목록">
 						</td>
