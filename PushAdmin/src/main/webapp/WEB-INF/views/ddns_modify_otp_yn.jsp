@@ -207,7 +207,9 @@ select::-ms-expand {
 				 	<option value=0 <c:if test="${otp_yn == 0}">selected</c:if>>0 OTP 인증 안함</option>
 					<option value=1 <c:if test="${otp_yn == 1}">selected</c:if>>1 기존통합앱사용자</option>
 					<option value=2 <c:if test="${otp_yn == 2}">selected</c:if>>2 관리자 변경</option>
-					<option value=3 <c:if test="${otp_yn == 3}">selected</c:if>>3 OTP 인증완료</option>
+					<!-- 
+					<option value=3 <c:if test="${otp_yn == 3}">selected</c:if>>3 OTP 인증완료</option> 
+					-->
 				</select>	
 				</div>	
 			</tr>

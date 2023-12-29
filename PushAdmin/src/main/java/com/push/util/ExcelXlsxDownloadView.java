@@ -43,26 +43,50 @@ public class ExcelXlsxDownloadView extends ExcelCustomView {
 			
 			CExcelDocBuild excelBuilder = (CExcelDocBuild) model.get("dataMap");
 		 
-			try (ServletOutputStream out = response.getOutputStream()) {
-				
-			
+			if(excelBuilder != null)
+			{
+				try (ServletOutputStream out = response.getOutputStream()) 
+				{
+					
 				 	response.setContentType(getContentType());
 				 
-				excelBuilder.getWorkbook().write(out);
-				out.flush();
-				out.close();
-			} catch (Exception e) {	 
-				response.setHeader("Set-Cookie", "fileDownload=false; path=/");
-				response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
-				response.setHeader("Content-Type","text/html; charset=utf-8");
-				logger.debug(e.getMessage());
-			}finally
-			{
-				excelBuilder.getWorkbook().dispose();
-				excelBuilder.getWorkbook().close();
-				 
-				System.gc();
+					excelBuilder.getWorkbook().write(out);
+					out.flush();
+					out.close();
+					
+					//logger.debug("excel write ok");
+				} catch (Exception e) {	 
+					response.setHeader("Set-Cookie", "fileDownload=false; path=/");
+					response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+					response.setHeader("Content-Type","text/html; charset=utf-8");
+					logger.debug(e.getMessage());
+				}finally
+				{
+					excelBuilder.getWorkbook().dispose();
+					excelBuilder.getWorkbook().close();
+					 
+					excelBuilder = null;
+					//yglee remove 2023.12.27
+					//System.gc();
+				}
 			}
+			else
+			{
+				if( model.get("writeOk").toString() == "1")
+				{
+					logger.debug("excel write ok");
+				}
+				else
+				{
+					response.setHeader("Set-Cookie", "fileDownload=false; path=/");
+					response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+					response.setHeader("Content-Type","text/html; charset=utf-8");
+					
+					logger.debug("already downloading!");
+				}
+				
+			}
+			
 		}
 
 	}

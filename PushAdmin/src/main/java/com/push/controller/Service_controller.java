@@ -101,7 +101,7 @@ public class Service_controller
 		String search_word_sql = "";
 		long time = System.currentTimeMillis();
 		SimpleDateFormat dayTime = new SimpleDateFormat("yyyyMMddHHmmss");
-		String str = dayTime.format(new Date(time));
+		String str = "[" + type + "]" + dayTime.format(new Date(time));
 		String fileName = str + ".xlsx";
 		excelBuilder.createNewSheet(0);
 		RequestAttributes requestAttributes = RequestContextHolder

@@ -23,10 +23,11 @@ public class Users_service
 	public static final int SEARCHTYPE_EMPLOYEENO = 8;
 	public static final int SEARCHTYPE_SERVICENO = 9;
 	public static final int SEARCHTYPE_OTP_YN = 10; //OTP_YN
+	/*
 	public static final int SEARCHTYPE_APP_ACCESS_ID = 11;
 	public static final int SEARCHTYPE_CMS_ACCESS_ID = 12;
 	   public static final int SEARCHTYPE_DEVICE_PROTOCOL_FROM_RECORDER = 13;
-	    public static final int SEARCHTYPE_DEVICE_PROTOCOL_FROM_WEBVIEWER = 14;
+	    public static final int SEARCHTYPE_DEVICE_PROTOCOL_FROM_WEBVIEWER = 14;*/
 	@Autowired
 	private Users_dao users_dao;
 
@@ -345,6 +346,7 @@ public class Users_service
 			return "service_no";
 		case SEARCHTYPE_OTP_YN:
 			return "otp_yn";
+		/*
 		case SEARCHTYPE_APP_ACCESS_ID:
 		  return "app_access_id";
 		case SEARCHTYPE_CMS_ACCESS_ID:
@@ -353,6 +355,7 @@ public class Users_service
 		  return "device_accesslog_type_t0";
 		case SEARCHTYPE_DEVICE_PROTOCOL_FROM_WEBVIEWER :
 		  return "device_accesslog_type_t1";
+		  */
 		}
 		return "";
 	}

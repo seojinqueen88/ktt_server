@@ -56,7 +56,7 @@ public interface ApiDao
 	public List<Map<String, Object>> selectDeviceWhereInServiceno(Map<String, Object> map);
 	public List<Map<String, Object>> selectDeviceWhereInServicenoOTP(Map<String, Object> map);
 	public List<Map<String, Object>> selectDeviceMAKERWhereInServiceno(Map<String, Object> map);
-
+	
 	public List<Map<String, Object>> selectDeviceWhereInMac(Map<String, Object> map);
 	public List<Map<String, Object>> selectDeviceWhereInMac2(Map<String, Object> map);
 	public List<Map<String, Object>> selectDeviceP2pWhereMac(String mac);

@@ -2694,11 +2694,13 @@ public class ApiController {
 			// SJ 통합버전 4.0.0 버전 업그래이드 시 개선 추가(20231128)
 			List<Map<String, Object>> tmpDeviceList = apiService.selectDeviceWhereInServicenoOTP(serviceNoListString);
 			List<Map<String, Object>> deviceList = new ArrayList<>();
+			int all_device = tmpDeviceList.size();
+
 			
 			List<Map<String, Object>> tmpRifaDeviceList = apiService.selectDeviceMAKERWhereInServiceno(serviceNoListString);
-
 			int rifa_device = tmpRifaDeviceList.size();
 			int count = 0;
+			boolean bNoMaker_device = true; 
 
 			String macList = "";
 			
@@ -2706,6 +2708,7 @@ public class ApiController {
 				//int otp_yn = apiService.verString2Int(tmpRifaDevice.get("otp_yn").toString());
 				int otp_yn = tmpRifaDevice.containsKey("otp_yn") ? (int) tmpRifaDevice.get("otp_yn") : 0;
 
+				
 				if (tmpRifaDevice.get("mac") == null) {
 					continue;
 				}
@@ -2719,9 +2722,27 @@ public class ApiController {
 					{
 						macList += (", '" + tmpRifaDevice.get("mac") + "'");
 					}
-				}			
+				}
 			}
 			 
+			
+			for (Map<String, Object> tmpDevice : tmpDeviceList) {
+				String maker = tmpDevice.get("maker").toString();
+				String tmpMaker = "RIFAT";
+				
+				if(!maker.trim().equals(tmpMaker) )
+				{
+					bNoMaker_device = true; 
+
+				}
+				else
+				{
+					
+					bNoMaker_device = false;
+					break;
+				}
+			}
+			
 			boolean allUpgrede = true; 
 			
 			for (Map<String, Object> tmpDevice : tmpDeviceList) {
@@ -2735,12 +2756,14 @@ public class ApiController {
 				}
 			}
 			
+			
 			for (Map<String, Object> tmpDevice : tmpDeviceList) {
 
 				if (tmpDevice.get("mac") == null) {
 					count++;
 					continue;
 				}
+				
 				
 				Map<String, Object> device = new HashMap<>();
 				device.put("serviceNo", tmpDevice.get("service_no"));
@@ -2767,10 +2790,60 @@ public class ApiController {
 										
 					//String maker = tmpDevice.containsKey("maker") ? tmpDevice.get("maker").toString(): "";
 					int otp_yn = tmpDevice.containsKey("otp_yn") ? (int) tmpDevice.get("otp_yn") : 0;
-
+					
 					String maker = tmpDevice.get("maker").toString();
 					String tmpMaker = "RIFAT";
 					
+					if (allUpgrede) 
+					{
+						logger.debug("장비의 버전이 모두 최신버전을 경우");
+						if(all_device <= 5)
+						{
+							logger.debug("장비의 개수가 5개 이하일 경우");
+							if(bNoMaker_device)
+							{
+								logger.debug("5대 이하 모든 장비가 이화트론 장비가 아닌경우");
+								device.put("model", tmpDevice.get("model"));
+								device.put("fwUp", 0);
+							
+							}
+							//else if(rifa_device > 0 && rifa_device <= 5)
+							else
+							{
+								if(otp_yn == 3)
+								{
+									logger.debug("모든 장비(5대)가 3 OTP 인증 완료 일 경우");
+									device.put("model", tmpDevice.get("model"));
+									device.put("fwUp", 0);
+								}
+								else
+								{
+									logger.debug("하나라도 OTP 인증이 안했을 경우");
+									response.put("deviceList", deviceList);
+									msg = "장비에서 [우클릭] →[시스템]→[사용자수정]에서 OTP인증 후 비밀번호 변경을 진행해주세요. (" + macList + ")";
+									result = "success";
+									break;
+								}
+							}
+							//else if(!maker.trim().equals(tmpMaker) || rifa_device > 5)
+						}
+						else if(all_device > 5)
+						{
+							logger.debug("장비의 갯수가 5개보다 많을 경우");
+
+							device.put("model", tmpDevice.get("model"));
+							device.put("fwUp", 0);
+						}
+					}
+					else  
+					{
+						logger.debug("장비의 버전이 1개라도 낮을 경우");
+						device.put("model", tmpDevice.get("model"));
+						device.put("fwUp", (device_ver < last_ver) ? 1 : 0);
+					}
+					
+					
+					/*
 					if (allUpgrede) 
 					{
 						if(maker.trim().equals(tmpMaker))
@@ -2804,7 +2877,7 @@ public class ApiController {
 						device.put("model", tmpDevice.get("model"));
 						device.put("fwUp", (device_ver < last_ver) ? 1 : 0);
 					}
-						
+						*/
 						// SJ add
 /*
 						int access_rule = tmpDevice.containsKey("access_rule") ? (int) tmpDevice.get("access_rule") : 0;
@@ -3167,7 +3240,7 @@ public class ApiController {
 	 * 
 	 * if(m.find()) { if(Integer.valueOf(m.group()) >=3) { fwVer300UnderFlag =
 	 * false; }else { fwVer300UnderFlag = true; } device_ver =
-	 * Integer.valueOf(m.group()) * 1000000;
+	 * Integer.valueOf(m.group()) * 100000;
 	 * 
 	 * }
 	 * 

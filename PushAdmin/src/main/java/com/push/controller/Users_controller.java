@@ -1,7 +1,9 @@
 package com.push.controller;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
+import java.io.Writer;
 import java.net.InetAddress;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
@@ -12,6 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -41,6 +44,8 @@ import com.push.util.Encryption;
 public class Users_controller {
 	//private static final int SEARCHTYPE_REGISTERTYPE = 5;
 	Logger logger = LoggerFactory.getLogger(Users_controller.class);
+	
+	public static Boolean bStartExcelDown = false;
 	
 	Logger otp_change_log = LoggerFactory.getLogger("otp_change_log"); // Pushadmin 관리자 페이지를 통한 수정 한 ID 등을 기록하기 위함...
 	
@@ -125,64 +130,44 @@ public class Users_controller {
 			    case Users_service.SEARCHTYPE_REGISTERTYPE:
 			    case Users_service.SEARCHTYPE_OTP_YN:
 			    //case Users_service.SEARCHTYPE_APP_ACCESS_TYPE:
-			      ddns_list = users_service
-                  .select_users_where_serviceno_and_registertype(
-                          service_no, search_type,
-                          Integer.parseInt(search_word), sort,
-                          direction, page);
-			      
-			      break;
-			    case Users_service.SEARCHTYPE_DEVICE_PROTOCOL_FROM_RECORDER:
-                  ddns_list = users_service.select_users_where_serviceno_and_search_type(
-                      service_no ,  search_type, "장비 (0)", sort, direction,
-                      page);
-                  break;
-                case Users_service.SEARCHTYPE_DEVICE_PROTOCOL_FROM_WEBVIEWER:
-                  ddns_list = users_service.select_users_where_serviceno_and_search_type(
-                      service_no,  search_type, "웹뷰어(1)", sort, direction,
-                      page);
-                  break;
-			      default:
-			        search_word_sql = search_word;
-                    ddns_list = users_service
-                            .select_users_where_serviceno_and_search_type(
-                                    service_no, search_type, search_word_sql,
-                                    sort, direction, page);
-                   
-                    break;
-			  }
+			      ddns_list = users_service.select_users_where_serviceno_and_registertype(service_no, search_type,Integer.parseInt(search_word), sort, direction, page);
+			    break;
 			    
-			/*	if (search_type == Users_service.SEARCHTYPE_REGISTERTYPE) {
-					try {
-						ddns_list = users_service
-								.select_users_where_serviceno_and_registertype(
-										service_no, search_type,
-										Integer.parseInt(search_word), sort,
-										direction, page);
-						total = users_service
-								.count_users_where_serviceno_and_registertype(
-										service_no, search_type,
-										Integer.parseInt(search_word));
-					} catch (NumberFormatException e) {
+			    /*
+			    case Users_service.SEARCHTYPE_DEVICE_PROTOCOL_FROM_RECORDER:
+                ddns_list = users_service.select_users_where_serviceno_and_search_type(service_no ,  search_type, "장비 (0)", sort, direction, page);
+                break;
+                case Users_service.SEARCHTYPE_DEVICE_PROTOCOL_FROM_WEBVIEWER:
+                ddns_list = users_service.select_users_where_serviceno_and_search_type(service_no,  search_type, "웹뷰어(1)", sort, direction, page);
+                break;
+                  */
+			      
+			    default:
+			    	search_word_sql = search_word;
+                    ddns_list = users_service.select_users_where_serviceno_and_search_type(service_no, search_type, search_word_sql,sort, direction, page);
+                    break;
+                    }
+			  /*
+			  if (search_type == Users_service.SEARCHTYPE_REGISTERTYPE) {
+				  try {
+					  ddns_list = users_service.select_users_where_serviceno_and_registertype(service_no, search_type, Integer.parseInt(search_word), sort, direction, page);
+					  total = users_service.count_users_where_serviceno_and_registertype(service_no, search_type, Integer.parseInt(search_word));
+					  } 
+					catch (NumberFormatException e) {
 					}
-				} else {
+				  } else {
 					search_word_sql = search_word;
-					ddns_list = users_service
-							.select_users_where_serviceno_and_search_type(
-									service_no, search_type, search_word_sql,
-									sort, direction, page);
-					total = users_service
-							.count_users_where_serviceno_and_search_type(
-									service_no, search_type, search_word_sql);
+					ddns_list = users_service.select_users_where_serviceno_and_search_type(service_no, search_type, search_word_sql,sort, direction, page);
+					total = users_service.count_users_where_serviceno_and_search_type(service_no, search_type, search_word_sql);
 				}
-				
-*/
+				*/
 				mv.addObject("search_type", search_type);
 				mv.addObject("search_word", search_word);
+				
 				break;
+
 			case "ddns_serviceno" :
-				ddns_list = users_service.select_users_where_serviceno(
-						service_no, sort, direction, page);
+				ddns_list = users_service.select_users_where_serviceno(service_no, sort, direction, page);
 				//total = users_service.count_users_where_serviceno(service_no);
 				break;
 			case "ddns_search" :
@@ -193,13 +178,11 @@ public class Users_controller {
 			    case Users_service.SEARCHTYPE_OTP_YN:
 	//		    case Users_service.SEARCHTYPE_APP_ACCESS_ID:
    //             case Users_service.SEARCHTYPE_CMS_ACCESS_ID: 
-                  ddns_list = users_service
-                  .select_users_where_registertype(search_type,
-                          Integer.parseInt(search_word), sort,
-                          direction, page);
-                
+                  ddns_list = users_service.select_users_where_registertype(search_type, Integer.parseInt(search_word), sort,direction, page);
                   break;
-                case Users_service.SEARCHTYPE_DEVICE_PROTOCOL_FROM_RECORDER:
+                
+			    /*
+			    case Users_service.SEARCHTYPE_DEVICE_PROTOCOL_FROM_RECORDER:
                   ddns_list = users_service.select_users_where_search_type(
                       search_type, "장비 (0)", sort, direction,
                       page);
@@ -209,53 +192,40 @@ public class Users_controller {
                       search_type, "웹뷰어(1)", sort, direction,
                       page);
                   break;
+                  */
                   default:
                     search_word_sql = search_word;
-                    ddns_list = users_service.select_users_where_search_type(
-                            search_type, search_word_sql, sort, direction,
-                            page);
-                    
-			    }
+                    ddns_list = users_service.select_users_where_search_type(search_type, search_word_sql, sort, direction, page); 
+                }
 			   //  total =  Integer.parseInt(String.valueOf(ddns_list.get(0).get("count")));
 			 
-              
-			/*	if (search_type == Users_service.SEARCHTYPE_REGISTERTYPE) {
+              /*
+				if (search_type == Users_service.SEARCHTYPE_REGISTERTYPE) {
 					try {
-						ddns_list = users_service
-								.select_users_where_registertype(search_type,
-										Integer.parseInt(search_word), sort,
-										direction, page);
-						total = users_service.count_users_where_registertype(
-								search_type, Integer.parseInt(search_word));
+						ddns_list = users_service.select_users_where_registertype(search_type, Integer.parseInt(search_word), sort, direction, page);
+						total = users_service.count_users_where_registertype(search_type, Integer.parseInt(search_word));
 					} catch (NumberFormatException e) {
 					}
 				} else {
 					search_word_sql = search_word;
-					ddns_list = users_service.select_users_where_search_type(
-							search_type, search_word_sql, sort, direction,
-							page);
-					total = users_service.count_users_where_search_type(
-							search_type, search_word_sql);
+					ddns_list = users_service.select_users_where_search_type(search_type, search_word_sql, sort, direction, page);
+					total = users_service.count_users_where_search_type(search_type, search_word_sql);
 				}
 				*/
 				mv.addObject("search_type", search_type);
 				mv.addObject("search_word", search_word);
 				break;
+			
 			case "ddns_search_otp_yn" :
 				if (search_type == Users_service.SEARCHTYPE_OTP_YN) {
 					 
-						ddns_list = users_service
-								.select_users_where_registertype(search_type,
-										Integer.parseInt(search_word), sort,
-										direction, page);
+						ddns_list = users_service.select_users_where_registertype(search_type, Integer.parseInt(search_word), sort, direction, page);
 					//	total = users_service.count_users_where_registertype(
 					//			search_type, Integer.parseInt(search_word));
 					 
 				} else {
 					search_word_sql = search_word;
-					ddns_list = users_service.select_users_where_search_type(
-							search_type, search_word_sql, sort, direction,
-							page);
+					ddns_list = users_service.select_users_where_search_type(search_type, search_word_sql, sort, direction, page);
 				//	total = users_service.count_users_where_search_type(
 				//			search_type, search_word_sql);
 				}
@@ -264,6 +234,7 @@ public class Users_controller {
 				mv.addObject("search_word", search_word);
 
 				break;
+				
 			case "ddns" :
 			default :
 				ddns_list = users_service.select_users_all(sort, direction, page);
@@ -271,8 +242,8 @@ public class Users_controller {
 				//   System.out.println(ddns_list.get(0).get("count").getClass().getName());
 				 //if(ddns_list != null)
 				 //    total =  Integer.parseInt(String.valueOf(ddns_list.get(0).get("count")));
-				logger.info("page : "+ page);
-
+				//logger.info("page : "+ page);
+				
 				break;
 		}
 		if(ddns_list != null && ddns_list.size()>0)
@@ -289,12 +260,13 @@ public class Users_controller {
 		else
 			last_page =  (total / 10 + 1);
 		_p = (page - 1) / 10 * 10;
-						
+		
+		/*
 	    logger.info( "total : " + total );
         logger.info( "current_page : " + page);
         logger.info( "start_page : " + (page - 1) / 10 * 10 + 1);
         logger.info( "last_page : " + last_page );      
-		
+		*/
 		mv.setViewName("ddns");
 		mv.addObject("url", url);
 		if(ddns_list != null)
@@ -320,20 +292,19 @@ public class Users_controller {
 			@RequestParam(required = false, defaultValue = "", value = "search_word_excel") String search_word_excel,
 			@RequestParam(required = false, defaultValue = "", value = "auth") String auth,
 			@RequestParam(required = false, defaultValue = "", value = "service_no") String service_no) {
+		
+		
+		
+		logger.info("ddns_excel start");
 		ModelAndView mv = new ModelAndView();
-		final String labels[] = {"No.", "도메인", "제조사", "모델", "외부 IP", "포트",
-				"P2P 라이선스", "P2P 우선순위", "장비 P2P 보유 여부", "등록일", "등록 타입", "IP 갱신",
-				"맥 주소", "장비", "버전", "내부 IP", "웹 포트", "서비스 번호", "서비스 개통 구분",
-				"DDNS 상태", "UPnP", "사원/앱ID", "IP 활성", "OTP 인증" ,"정책획득",
-				"kttddns_serviceno_to_app_deviceinfo","APP ACCESS ID","APP ACCESS TYPE", "APP ACCESS DATE" ,
-				"CMS ACCESS ID","CMS ACCESS TYPE", "CMS ACCESS DATE" ,
-				"DEVICE ACCESS 장비","DEVICE PROTOCOL", "DEVICE PROTOCOL DATE" ,
-				"DEVICE ACCESS 웹뷰어","DEVICE PROTOCOL", "DEVICE PROTOCOL DATE" ,
-				"ACCESS RULE"};
-		final int columnWidth[] = {10, 60, 20, 40, 40, 20, 50, 40, 40, 40,
-		    40,60, 50, 20, 30, 40, 20, 40, 40, 40,
-		    10, 40, 10, 30,35,35,35,35,35,35,35,
-		    35,35,35,35,35,35,35 ,35};
+		final String labels[] = {"No.", "도메인", "제조사", "모델", "외부 IP", "포트", "P2P 라이선스", "P2P 우선순위", "장비 P2P 보유 여부", "등록일", 
+				"등록 타입", "IP 갱신", "맥 주소", "장비", "버전", "내부 IP", "웹 포트", "서비스 번호", "서비스 개통 구분", "DDNS 상태", 
+				"UPnP", "사원/앱ID", "IP 활성", "OTP 인증" ,"정책획득", "앱정책"};
+	
+		final int columnWidth[] = {10, 40, 15, 25, 25, 15, 30, 25, 25, 20,
+		    25, 30, 30, 15, 20, 30, 15, 25, 15, 20,
+		    10, 25, 10, 30, 30, 20,};
+
 		if (request.getServletPath().equals("/ddns_serviceno_excel.xlsx")) {
 			if (auth == null || service_no == null
                 || auth.length() == 0 ||  service_no.length() == 0
@@ -404,40 +375,28 @@ public class Users_controller {
 	                case Users_service.SEARCHTYPE_OTP_YN:
 	                
 	                  num = Integer.parseInt(search_word_excel);
-                      ddns_list = users_service
-                              .select_users_where_serviceno_and_registertype_excel(
-                                      service_no, search_type_excel, num,
-                                      sort, direction, -1);
+                      ddns_list = users_service.select_users_where_serviceno_and_registertype_excel( service_no, search_type_excel, num, sort, direction, -1);
 	                  break;
+	                  /*
 	                case Users_service.SEARCHTYPE_DEVICE_PROTOCOL_FROM_RECORDER:
-	                  ddns_list = users_service.select_users_where_serviceno_and_search_type_excel(
-	                      service_no,  search_type_excel, "장비 (0)", sort, direction, -1);
+	                  ddns_list = users_service.select_users_where_serviceno_and_search_type_excel(service_no,  search_type_excel, "장비 (0)", sort, direction, -1);
 	                  break;
 	                case Users_service.SEARCHTYPE_DEVICE_PROTOCOL_FROM_WEBVIEWER:
-	                  ddns_list = users_service.select_users_where_serviceno_and_search_type_excel(
-	                      service_no, search_type_excel, "웹뷰어(1)", sort, direction, -1);
+	                  ddns_list = users_service.select_users_where_serviceno_and_search_type_excel(service_no, search_type_excel, "웹뷰어(1)", sort, direction, -1);
 	                  break;
+	                  */
 	                  default:
 	                    search_word_sql = search_word_excel;
-                        ddns_list = users_service
-                                .select_users_where_serviceno_and_search_type_excel(
-                                        service_no, search_type_excel,
-                                        search_word_sql, sort, direction, -1);
+                        ddns_list = users_service.select_users_where_serviceno_and_search_type_excel(service_no, search_type_excel, search_word_sql, sort, direction, -1);
                         break;
 				  }
 					/*if (search_type_excel == Users_service.SEARCHTYPE_REGISTERTYPE) {
 						num = Integer.parseInt(search_word_excel);
-						ddns_list = users_service
-								.select_users_where_serviceno_and_registertype_excel(
-										service_no, search_type_excel, num,
-										sort, direction, -1);
+						ddns_list = users_service.select_users_where_serviceno_and_registertype_excel(service_no, search_type_excel, num, sort, direction, -1);
 
 					} else {
 						search_word_sql = search_word_excel;
-						ddns_list = users_service
-								.select_users_where_serviceno_and_search_type_excel(
-										service_no, search_type_excel,
-										search_word_sql, sort, direction, -1);
+						ddns_list = users_service.select_users_where_serviceno_and_search_type_excel(service_no, search_type_excel, search_word_sql, sort, direction, -1);
 					}*/
 					if (ddns_list != null && ddns_list.size() > 0)
 						excelBuilder.addRowList(ddns_list);
@@ -449,40 +408,29 @@ public class Users_controller {
                     case Users_service.SEARCHTYPE_OTP_YN:
          
                       num = Integer.parseInt(search_word_excel);
-                      ddns_list = users_service
-                              .select_users_where_serviceno_and_registertype_excel(
-                                      service_no, search_type_excel, num,
-                                      sort, direction, page);
+                      ddns_list = users_service.select_users_where_serviceno_and_registertype_excel(service_no, search_type_excel, num, sort, direction, page);
                       break;
+                      /*
                     case Users_service.SEARCHTYPE_DEVICE_PROTOCOL_FROM_RECORDER:
-                      ddns_list = users_service.select_users_where_serviceno_and_search_type_excel(
-                          service_no,  search_type_excel, "장비 (0)", sort, direction, page);
+                      ddns_list = users_service.select_users_where_serviceno_and_search_type_excel(service_no,  search_type_excel, "장비 (0)", sort, direction, page);
                       break;
                     case Users_service.SEARCHTYPE_DEVICE_PROTOCOL_FROM_WEBVIEWER:
-                      ddns_list = users_service.select_users_where_serviceno_and_search_type_excel(
-                          service_no, search_type_excel, "웹뷰어(1)", sort, direction, page);
+                      ddns_list = users_service.select_users_where_serviceno_and_search_type_excel(service_no, search_type_excel, "웹뷰어(1)", sort, direction, page);
                       break;
+                      */
                      default:
                        search_word_sql = search_word_excel;
-                       ddns_list = users_service
-                               .select_users_where_serviceno_and_search_type_excel(
-                                       service_no, search_type_excel,
-                                       search_word_sql, sort, direction, page);
+                       ddns_list = users_service.select_users_where_serviceno_and_search_type_excel( service_no, search_type_excel, search_word_sql, sort, direction, page);
                        break;
                   }
 				/*	if (search_type_excel == Users_service.SEARCHTYPE_REGISTERTYPE) {
 						num = Integer.parseInt(search_word_excel);
-						ddns_list = users_service
-								.select_users_where_serviceno_and_registertype_excel(
-										service_no, search_type_excel, num,
-										sort, direction, page);
+						ddns_list = users_service.select_users_where_serviceno_and_registertype_excel(service_no, search_type_excel, num, sort, direction, page);
 
 					} else {
 						search_word_sql = search_word_excel;
 						ddns_list = users_service
-								.select_users_where_serviceno_and_search_type_excel(
-										service_no, search_type_excel,
-										search_word_sql, sort, direction, page);
+								.select_users_where_serviceno_and_search_type_excel(service_no, search_type_excel,search_word_sql, sort, direction, page);
 					}*/
 					if (ddns_list != null && ddns_list.size() > 0)
 						excelBuilder.addRowList(ddns_list);
@@ -490,18 +438,14 @@ public class Users_controller {
 				case "ddns_serviceno_all" :
 					// total =
 					// users_service.count_users_where_serviceno(service_no);
-					while ((ddns_list = users_service
-							.select_users_where_serviceno_excel(service_no,
-									sort, direction, offset, -1)) != null
-							&& ddns_list.size() > 0) {
+					while ((ddns_list = users_service.select_users_where_serviceno_excel(service_no, sort, direction, offset, -1)) != null 
+					&& ddns_list.size() > 0) {
 						excelBuilder.addRowList(ddns_list);
 						offset += 100000;
 					}
 					break;
 				case "ddns_serviceno" :
-					ddns_list = users_service
-							.select_users_where_serviceno_excel(service_no,
-									sort, direction, -1, page);
+					ddns_list = users_service.select_users_where_serviceno_excel(service_no, sort, direction, -1, page);
 					if (ddns_list != null && ddns_list.size() > 0)
 						excelBuilder.addRowList(ddns_list);
 					break;
@@ -513,40 +457,29 @@ public class Users_controller {
                     case Users_service.SEARCHTYPE_OTP_YN:
                 
                       num = Integer.parseInt(search_word_excel);
-                      ddns_list = users_service
-                              .select_users_where_registertype_excel(
-                                      search_type_excel, num, sort, direction,  -1);
+                      ddns_list = users_service.select_users_where_registertype_excel(search_type_excel, num, sort, direction,  -1);
                       break;
+                      /*
                     case Users_service.SEARCHTYPE_DEVICE_PROTOCOL_FROM_RECORDER:
-                      ddns_list = users_service.select_users_where_search_type_excel(
-                             search_type_excel, "장비 (0)", sort, direction, -1);
+                      ddns_list = users_service.select_users_where_search_type_excel(search_type_excel, "장비 (0)", sort, direction, -1);
                       break;
                     case Users_service.SEARCHTYPE_DEVICE_PROTOCOL_FROM_WEBVIEWER:
-                      ddns_list = users_service.select_users_where_search_type_excel(
-                           search_type_excel, "웹뷰어(1)", sort, direction, -1);
+                      ddns_list = users_service.select_users_where_search_type_excel(search_type_excel, "웹뷰어(1)", sort, direction, -1);
                       break;
+                      */
                       default:
                         search_word_sql = search_word_excel;
-                        ddns_list = users_service
-                                .select_users_where_search_type_excel(
-                                        search_type_excel, search_word_sql,
-                                        sort, direction, -1);
+                        ddns_list = users_service.select_users_where_search_type_excel(search_type_excel, search_word_sql, sort, direction, -1);
                         break;
                   }
 				/*	if (search_type_excel == Users_service.SEARCHTYPE_REGISTERTYPE || 
 					    search_type_excel == Users_service.SEARCHTYPE_OTP_YN) {
 						num = Integer.parseInt(search_word_excel);
-						ddns_list = users_service
-								.select_users_where_registertype_excel(
-										search_type_excel, num, sort, direction,
-										-1);
+						ddns_list = users_service.select_users_where_registertype_excel(search_type_excel, num, sort, direction, -1);
 
 					} else {
 						search_word_sql = search_word_excel;
-						ddns_list = users_service
-								.select_users_where_search_type_excel(
-										search_type_excel, search_word_sql,
-										sort, direction, -1);
+						ddns_list = users_service.select_users_where_search_type_excel(search_type_excel, search_word_sql, sort, direction, -1);
 					}*/
 					if (ddns_list != null && ddns_list.size() > 0)
 						excelBuilder.addRowList(ddns_list);
@@ -559,25 +492,19 @@ public class Users_controller {
                     case Users_service.SEARCHTYPE_OTP_YN:
                   
                       num = Integer.parseInt(search_word_excel);
-                      ddns_list = users_service
-                              .select_users_where_registertype_excel(
-                                      search_type_excel, num, sort, direction,
-                                      page);
+                      ddns_list = users_service .select_users_where_registertype_excel(search_type_excel, num, sort, direction, page);
                       break;
+                      /*
                     case Users_service.SEARCHTYPE_DEVICE_PROTOCOL_FROM_RECORDER:
-                      ddns_list = users_service.select_users_where_search_type_excel(
-                             search_type_excel, "장비 (0)", sort, direction, page);
+                      ddns_list = users_service.select_users_where_search_type_excel(search_type_excel, "장비 (0)", sort, direction, page);
                       break;
                     case Users_service.SEARCHTYPE_DEVICE_PROTOCOL_FROM_WEBVIEWER:
-                      ddns_list = users_service.select_users_where_search_type_excel(
-                           search_type_excel, "웹뷰어(1)", sort, direction, page);
+                      ddns_list = users_service.select_users_where_search_type_excel(search_type_excel, "웹뷰어(1)", sort, direction, page);
                       break;
+                      */
                       default:
                         search_word_sql = search_word_excel;
-                      ddns_list = users_service
-                              .select_users_where_search_type_excel(
-                                      search_type_excel, search_word_sql,
-                                      sort, direction, page);
+                      ddns_list = users_service.select_users_where_search_type_excel(search_type_excel, search_word_sql, sort, direction, page);
                       break;
                   }
                       /*
@@ -585,37 +512,111 @@ public class Users_controller {
 					if (search_type_excel == Users_service.SEARCHTYPE_REGISTERTYPE 
 					 || search_type_excel == Users_service.SEARCHTYPE_OTP_YN) {
 						num = Integer.parseInt(search_word_excel);
-						ddns_list = users_service
-								.select_users_where_registertype_excel(
-										search_type_excel, num, sort, direction,
-										page);
+						ddns_list = users_service.select_users_where_registertype_excel(search_type_excel, num, sort, direction, page);
 					} else {
 						search_word_sql = search_word_excel;
-						ddns_list = users_service
-								.select_users_where_search_type_excel(
-										search_type_excel, search_word_sql,
-										sort, direction, page);
+						ddns_list = users_service.select_users_where_search_type_excel(search_type_excel, search_word_sql, sort, direction, page);
 					}
 					*/
 					if (ddns_list != null && ddns_list.size() > 0)
 						excelBuilder.addRowList(ddns_list);
 					break;
 				case "ddns_all" : {
-					while ((ddns_list = users_service.select_users_all_excel(
-							sort, direction, offset)) != null
-							&& ddns_list.size() > 0) {
-						offset += 100000;
-						excelBuilder.addRowList(ddns_list);
+					
+					if(bStartExcelDown == false)
+					{
+						bStartExcelDown = true;
+						
+						logger.info("ddns_all start");
+					
+						while ((ddns_list = users_service.select_users_all_excel(sort, direction, offset)) != null
+								&& ddns_list.size() > 0) 
+						{
+							offset += 100000;
+							logger.info("ddns_all addRowList");
+							excelBuilder.addRowList(ddns_list);
+							logger.info("ddns_all 100000");
+							logger.info("offset : " + offset);
+						}
+						
+						try (ServletOutputStream out = response.getOutputStream()) 
+						{ 
+							response.setHeader("Content-Type","text/html; charset=utf-8");
+							response.setHeader("Set-Cookie", "fileDownload=true; path=/");
+							
+							excelBuilder.getWorkbook().write(out);
+							out.flush();
+							out.close();
+							
+							logger.debug("excel write ok");
+						} catch (Exception e) {	 
+							response.setHeader("Set-Cookie", "fileDownload=false; path=/");
+							response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+							response.setHeader("Content-Type","text/html; charset=utf-8");
+							logger.debug(e.getMessage());
+						}finally
+						{
+							excelBuilder.getWorkbook().dispose();
+							excelBuilder.getWorkbook().close();
+							 
+							excelBuilder = null;
+							//yglee remove 2023.12.27
+							//System.gc();
+						}
+						
+						
+						mv.addObject("dataMap", excelBuilder);
+						mv.addObject("writeOk", "1");
+						mv.setViewName("excelXlsx");
+
+						bStartExcelDown = false;
+						logger.info("ddns_all end");
+						return null;
 					}
+					else
+					{
+						logger.info("already downloading");
+						/*
+						String msg = "엑셀 다운로드 완료 후 다시 시도 바랍니다.";
+						
+						response.setContentType("text/html; charset=utf-8");
+				        PrintWriter w = response.getWriter();
+				        w.write("<script>alert('"+msg+"');</script>");
+				        w.flush();
+				        response.flushBuffer();
+				        w.close();
+*/
+											
+						response.setContentType("text/html; charset=utf-8");
+						response.setHeader("Content-Type","text/html; charset=utf-8");
+						response.setHeader("Set-Cookie", "fileDownload=false; path=/");
+						
+						ServletOutputStream out = null;
+						
+						try {
+							out = response.getOutputStream();
+							
+							byte[] data = new String("fail..").getBytes();
+							out.write(data, 0, data.length);
+							
+						  } catch(Exception ignore) {
+							  	response.setHeader("Set-Cookie", "fileDownload=false; path=/");
+								response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+								response.setHeader("Content-Type","text/html; charset=utf-8");
+						  } finally {
+							if(out != null) try { out.close(); } catch(Exception ignore) {}
+						  }
+						
+						return null;
+					}
+					
 					// logger.info(ddns_list.size()+"");
 				}
-					break;
+					//break;
 			 
 				case "ddns" :
 				default :
-					ddns_list = users_service
-							.select_users_all_excel_current_page(sort,
-									direction, page);
+					ddns_list = users_service.select_users_all_excel_current_page(sort, direction, page);
 					if (ddns_list != null && ddns_list.size() > 0)
 						excelBuilder.addRowList(ddns_list);
 					break;
@@ -635,7 +636,7 @@ public class Users_controller {
 
 		return mv;
 	}
-
+	
 	@RequestMapping(value = {"network_ddns_page.do",
 			"network_ddns_serviceno.do"})
 	public ModelAndView network_ddns_page(HttpServletRequest request,

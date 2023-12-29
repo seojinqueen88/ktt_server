@@ -259,6 +259,7 @@ REGEXP_REPLACE(replace(coalesce(empty3,''), '.', ''),'[[:alpha:]]','','g')  as "
 	<select id="selectDeviceMAKERWhereInServiceno" parameterType="map" resultType="map">
 		select distinct rtrim(jumin) as mac , otp_yn, maker from users where service_no in (${serviceNoListString})and maker like '%RIFAT%'
 	</select>
+	
 		
 	<select id="selectDeviceWhereInMac" parameterType="map" resultType="map">
 		select service_no, register_type from users where jumin in (${macListString})

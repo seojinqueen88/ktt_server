@@ -146,7 +146,7 @@ public class Register_controller
 		final int columnWidth[] = {10, 30, 30, 20, 15, 30, 30};
 		long time = System.currentTimeMillis();
 		SimpleDateFormat dayTime = new SimpleDateFormat("yyyyMMddHHmmss");
-		String str = dayTime.format(new Date(time));
+		String str = "[" + type + "]" + dayTime.format(new Date(time));
 		String fileName = str + ".xlsx";
 		CExcelDocBuild excelBuilder = new CExcelDocBuild(labels, columnWidth , "Register");
 		switch(type)

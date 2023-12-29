@@ -106,7 +106,7 @@ public class Ddnslog_controller
 		List<Map<String, Object>> ddnslog_list = null;
 		long time = System.currentTimeMillis();
 		SimpleDateFormat dayTime = new SimpleDateFormat("yyyyMMddHHmmss");
-		String str = dayTime.format(new Date(time));
+		String str = "[" + type + "]" + dayTime.format(new Date(time));
 		String fileName = str + ".xlsx";
 		String search_word_sql = "";
 		try {

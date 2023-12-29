@@ -102,15 +102,18 @@ public class Models_controller
 	{
 		ModelAndView mv = new ModelAndView();
 		
-		final String labels[] = {"No." , "모델", "FW 버전", "OTP 지원 버전"};
-		final int columnWidth[] = {10, 20, 20 ,20};
+		final String labels[] = {"No." , "모델", "FW 버전"};
+		final int columnWidth[] = {10, 20, 20};
 		CExcelDocBuild excelBuilder = new CExcelDocBuild(labels, columnWidth , "Model");
 		List<Map<String, Object>> models_list = null;
 		String search_word_sql = "";
 		long time = System.currentTimeMillis();
 		SimpleDateFormat dayTime = new SimpleDateFormat("yyyyMMddHHmmss");
-		String str = dayTime.format(new Date(time));
+		String str = "[" + type + "]" + dayTime.format(new Date(time));
+		//String str = dayTime.format(new Date(time));
 		String fileName = str + ".xlsx";
+		
+		
 		switch(type)
 		{
 		case "models_search_all":
@@ -135,12 +138,9 @@ public class Models_controller
 			excelBuilder.createNewSheet(0);
 			excelBuilder.addRowList(models_list);
 		}
-		RequestAttributes requestAttributes = RequestContextHolder
-				.getRequestAttributes();
-		HttpServletRequest httpServletRequest = ((ServletRequestAttributes) requestAttributes)
-				.getRequest();
-		HttpServletResponse httpServelResponse = ((ServletRequestAttributes) requestAttributes)
-				.getResponse();
+		RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
+		HttpServletRequest httpServletRequest = ((ServletRequestAttributes) requestAttributes).getRequest();
+		HttpServletResponse httpServelResponse = ((ServletRequestAttributes) requestAttributes).getResponse();
 		HttpServletResponse response = httpServelResponse;
 		// response.setContentType(getContentType());
 		response.setBufferSize(512 * 1024);

@@ -80,6 +80,8 @@ var url = "${url }";
 var auth = "${auth }";
 var service_no = "${service_no }";
 
+var acceessableCount = 1; //동시접근제한수, 리소스에따라 변경가능
+
 $(function()
 {
 	$.ajaxSetup(
@@ -99,10 +101,10 @@ $(function()
 				{
 				switch(_search_word)
 				{
-				case "OTP 인증완료":
+				 case "OTP 인증완료":
 					$("#search_word").attr("value","3");
-					break;
-				case "관리자 변경":
+				break;				
+ 				case "관리자 변경":
 					$("#search_word").attr("value","2");
 					break;
 				case "기존통합앱사용자":
@@ -147,12 +149,13 @@ $(function()
 		$("#excel_form").submit();
 	});
 
+	
 	$("#excel_all_btn").click(function()
 	{
 		
 		alert("데이터의 양에 따라 1~30초 정도의 시간이 소요될 수 있습니다.\n확인 버튼을 누르신 후 잠시만 기다려 주세요.");
-
-		if(url == "ddns_page.do")
+		
+  		if(url == "ddns_page.do")
 			$("#excel_all_form").attr("action", "/PushAdmin/ddns_excel.xlsx");
 		else if(url == "ddns_serviceno.do")
 			$("#excel_all_form").attr("action", "/PushAdmin/ddns_serviceno_excel.xlsx");
@@ -168,7 +171,7 @@ $(function()
 		    httpMethod: "POST", 
 		    data: $('#excel_all_form').serialize(), 
 		    successCallback: function (url) { 
-		    	//alert("Sucess Download"); 
+		    	alert("Sucess Download"); 
 		        $preparingFileModal.dialog('close');
 		    },
 		    failCallback: function (responseHtml, url, error) { 
@@ -178,9 +181,8 @@ $(function()
              $("#error-modal").dialog({ modal: true });
 		    } 
 		});
-
 	});
-
+	
 	$("#list_all_btn").click(function()
 	{
 		$("#list_all_form").submit();
@@ -425,62 +427,48 @@ function checkList(){
 					<tr>
 						<td style="background-color: #F6F6F6; border: 0px; top: 5px;" height="30px" colspan="14" align="center" class="font2">D D N S</td>
 					</tr>
-					<!--<tr height="30">
-										<td colspan="11"></td>
-										<td>
-											<a target='_blank' href="/PushAdmin/ddnslog_page.do"><b>Goto DDNS
-													Log</b></a>
-										</td>
-									</tr> --!>
-									
-									<tr height="0.1">
-										<td colspan="14">
-											<hr size="0.1" color="CDCBCB" style="border-bottom: medium;">
-										</td>
-									</tr>
-									<tr align="center">
-										<td width="4%" class="title font1"><span>No.</span></td>
-										<td width="10%" class="select title font1"><span style="cursor: pointer;"
-												onclick="location.href='/PushAdmin/${url }?type=${type }&auth=${auth }&service_no=${service_no }&sort=domain&direction=${direction == 'desc' ? 'asc' : 'desc' }&search_type=${search_type }&search_word=${search_word }'">도메인</span>
-										</td>
-										<td width="5%" class="select title font1"><span style="cursor: pointer;"
-												onclick="location.href='/PushAdmin/${url }?type=${type }&auth=${auth }&service_no=${service_no }&sort=maker&direction=${direction == 'desc' ? 'asc' : 'desc' }&search_type=${search_type }&search_word=${search_word }'">제조사</span>
-										</td>
-										<td width="5%" class="select title font1"><span style="cursor: pointer;"
-												onclick="location.href='/PushAdmin/${url }?type=${type }&auth=${auth }&service_no=${service_no }&sort=empty2&direction=${direction == 'desc' ? 'asc' : 'desc' }&search_type=${search_type }&search_word=${search_word }'">모델</span>
-										</td>
-										<td width="7%" class="select title font1"><span style="cursor: pointer;"
-												onclick="location.href='/PushAdmin/${url }?type=${type }&auth=${auth }&service_no=${service_no }&sort=addr&direction=${direction == 'desc' ? 'asc' : 'desc' }&search_type=${search_type }&search_word=${search_word }'">외부
-												IP</span></td>
-										<td width="5%" class="select title font1"><span style="cursor: pointer;"
-												onclick="location.href='/PushAdmin/${url }?type=${type }&auth=${auth }&service_no=${service_no }&sort=port&direction=${direction == 'desc' ? 'asc' : 'desc' }&search_type=${search_type }&search_word=${search_word }'">포트</span>
-										</td>
-										<td width="8%" class="select title font1"><span style="cursor: pointer;"
-												onclick="location.href='/PushAdmin/${url }?type=${type }&auth=${auth }&service_no=${service_no }&sort=last_access_master_key_time&direction=${direction == 'desc' ? 'asc' : 'desc' }&search_type=${search_type }&search_word=${search_word }'">정책획득
-												</span></td>
-										<td width="9%" class="select title font1"><span style="cursor: pointer;"
-												onclick="location.href='/PushAdmin/${url }?type=${type }&auth=${auth }&service_no=${service_no }&sort=p2p_uid&direction=${direction == 'desc' ? 'asc' : 'desc' }&search_type=${search_type }&search_word=${search_word }'">P2P
-												INFO </span></td>
-										<td width="8%" class="select title font1"><span style="cursor: pointer;"
-												onclick="location.href='/PushAdmin/${url }?type=${type }&auth=${auth }&service_no=${service_no }&sort=p2p_device&direction=${direction == 'desc' ? 'asc' : 'desc' }&search_type=${search_type }&search_word=${search_word }'">장비
-												P2P 보유 여부</span></td>
-										<td width="5%" class="select title font1"><span style="cursor: pointer;"
-												onclick="location.href='/PushAdmin/${url }?type=${type }&auth=${auth }&service_no=${service_no }&sort=regtime&direction=${direction == 'desc' ? 'asc' : 'desc' }&search_type=${search_type }&search_word=${search_word }'">등록일</span>
-										</td>
-										<td width="7%" class="select title font1"><span style="cursor: pointer;"
-												onclick="location.href='/PushAdmin/${url }?type=${type }&auth=${auth }&service_no=${service_no }&sort=register_type&direction=${direction == 'desc' ? 'asc' : 'desc' }&search_type=${search_type }&search_word=${search_word }'">등록
-												타입</span></td>
-										<%-- <td width="10%" class="select title font1"><span style="cursor:pointer;"
-												onclick="location.href='/PushAdmin/${url }?type=${type }&auth=${auth }&service_no=${service_no }&sort=empty1&direction=${direction == 'desc' ? 'asc' : 'desc' }&search_type=${search_type }&search_word=${search_word }'">IP
-												갱신</span>
-							</td> --%>
-							<td width="9%" class="select title font1"><span style="cursor: pointer;"
-									onclick="location.href='/PushAdmin/${url }?type=${type }&auth=${auth }&service_no=${service_no }&sort=empty1&direction=${direction == 'desc' ? 'asc' : 'desc' }&search_type=${search_type }&search_word=${search_word }'">IP 갱신 (IP 할당)</span></td>
-							<td width="8%" class="select title font1"><span style="cursor: pointer;"
-									onclick="location.href='/PushAdmin/${url }?type=${type }&auth=${auth }&service_no=${service_no }&sort=app_access_id&direction=${direction == 'desc' ? 'asc' : 'desc' }&search_type=${search_type }&search_word=${search_word }'">APP ACCESS</span></td>
-							<td width="9%" class="select title font1"><span style="cursor: pointer;"
-									onclick="location.href='/PushAdmin/${url }?type=${type }&auth=${auth }&service_no=${service_no }&sort=cms_access_id&direction=${direction == 'desc' ? 'asc' : 'desc' }&search_type=${search_type }&search_word=${search_word }'">CMS ACCESS</span></td>
-						</tr>
+		
+				<tr height="0.1">
+					<td colspan="14">
+						<hr size="0.1" color="CDCBCB" style="border-bottom: medium;">
+					</td>
+				</tr>
+				<tr align="center">
+					<td width="4%" class="title font1"><span>No.</span></td>
+					<td width="10%" class="select title font1"><span style="cursor: pointer;"
+							onclick="location.href='/PushAdmin/${url }?type=${type }&auth=${auth }&service_no=${service_no }&sort=domain&direction=${direction == 'desc' ? 'asc' : 'desc' }&search_type=${search_type }&search_word=${search_word }'">도메인</span>
+					</td>
+					<td width="5%" class="select title font1"><span style="cursor: pointer;"
+							onclick="location.href='/PushAdmin/${url }?type=${type }&auth=${auth }&service_no=${service_no }&sort=maker&direction=${direction == 'desc' ? 'asc' : 'desc' }&search_type=${search_type }&search_word=${search_word }'">제조사</span>
+					</td>
+					<td width="5%" class="select title font1"><span style="cursor: pointer;"
+							onclick="location.href='/PushAdmin/${url }?type=${type }&auth=${auth }&service_no=${service_no }&sort=empty2&direction=${direction == 'desc' ? 'asc' : 'desc' }&search_type=${search_type }&search_word=${search_word }'">모델</span>
+					</td>
+					<td width="7%" class="select title font1"><span style="cursor: pointer;"
+							onclick="location.href='/PushAdmin/${url }?type=${type }&auth=${auth }&service_no=${service_no }&sort=addr&direction=${direction == 'desc' ? 'asc' : 'desc' }&search_type=${search_type }&search_word=${search_word }'">외부 IP</span>
+					</td>
+					<td width="5%" class="select title font1"><span style="cursor: pointer;"
+							onclick="location.href='/PushAdmin/${url }?type=${type }&auth=${auth }&service_no=${service_no }&sort=port&direction=${direction == 'desc' ? 'asc' : 'desc' }&search_type=${search_type }&search_word=${search_word }'">포트</span>
+					</td>
+					<td width="8%" class="select title font1"><span style="cursor: pointer;"
+							onclick="location.href='/PushAdmin/${url }?type=${type }&auth=${auth }&service_no=${service_no }&sort=p2p_uid&direction=${direction == 'desc' ? 'asc' : 'desc' }&search_type=${search_type }&search_word=${search_word }'">P2P 라이선스 </span>
+					</td>
+					<td width="9%" class="select title font1"><span style="cursor: pointer;"
+							onclick="location.href='/PushAdmin/${url }?type=${type }&auth=${auth }&service_no=${service_no }&sort=p2p_priority&direction=${direction == 'desc' ? 'asc' : 'desc' }&search_type=${search_type }&search_word=${search_word }'">P2P 우선순위 </span>
+					</td>
+					<td width="8%" class="select title font1"><span style="cursor: pointer;"
+							onclick="location.href='/PushAdmin/${url }?type=${type }&auth=${auth }&service_no=${service_no }&sort=p2p_device&direction=${direction == 'desc' ? 'asc' : 'desc' }&search_type=${search_type }&search_word=${search_word }'">장비 P2P 보유 여부</span>
+					</td>
+					<td width="5%" class="select title font1"><span style="cursor: pointer;"
+							onclick="location.href='/PushAdmin/${url }?type=${type }&auth=${auth }&service_no=${service_no }&sort=regtime&direction=${direction == 'desc' ? 'asc' : 'desc' }&search_type=${search_type }&search_word=${search_word }'">등록일</span>
+					</td>
+					<td width="7%" class="select title font1"><span style="cursor: pointer;"
+							onclick="location.href='/PushAdmin/${url }?type=${type }&auth=${auth }&service_no=${service_no }&sort=register_type&direction=${direction == 'desc' ? 'asc' : 'desc' }&search_type=${search_type }&search_word=${search_word }'">등록 타입</span>
+					</td>
+					<td width="9%" class="select title font1"><span style="cursor: pointer;"
+							 onclick="location.href='/PushAdmin/${url }?type=${type }&auth=${auth }&service_no=${service_no }&sort=empty1&direction=${direction == 'desc' ? 'asc' : 'desc' }&search_type=${search_type }&search_word=${search_word }'">IP 갱신 (IP 할당)</span>
+					 </td>
+					</tr>
 						<tr align="center">
 
 							<td class="title">
@@ -520,16 +508,10 @@ function checkList(){
 					<td class="select title font1">
 						<span style="cursor: pointer;" onclick="location.href='/PushAdmin/${url }?type=${type }&auth=${auth }&service_no=${service_no }&sort=employee_no&direction=${direction == 'desc' ? 'asc' : 'desc' }&search_type=${search_type }&search_word=${search_word }'">사원/앱ID</span>
 					</td>
-					<!-- 						<td class="title font1"><span>IP 활성</span></td> -->
 					<td class="select title font1">
 						<span style="cursor: pointer;" onclick="location.href='/PushAdmin/${url }?type=${type }&auth=${auth }&service_no=${service_no }&sort=otp_yn&direction=${direction == 'desc' ? 'asc' : 'desc' }&search_type=${search_type }&search_word=${search_word }'">OTP 인증</span>
 					</td>
-					<td class="select title font1">
-						<span style="cursor: pointer;" onclick="location.href='/PushAdmin/${url }?type=${type }&auth=${auth }&service_no=${service_no }&sort=device_accesslog_type_t0&direction=${direction == 'desc' ? 'asc' : 'desc' }&search_type=${search_type }&search_word=${search_word }'">장비 ACCESS</span>
-					</td>
-					<td class="select title font1">
-						<span style="cursor: pointer;" onclick="location.href='/PushAdmin/${url }?type=${type }&auth=${auth }&service_no=${service_no }&sort=device_accesslog_type_t1&direction=${direction == 'desc' ? 'asc' : 'desc' }&search_type=${search_type }&search_word=${search_word }'">웹뷰어 ACCESS</span>
-					</td>
+
 					</tr>
 					<tr height="0.1">
 						<td colspan="14">
@@ -556,36 +538,18 @@ function checkList(){
 							<td style="white-space: nowrap;">
 								<c:out value="${ddns_list.port }" />
 							</td>
+							<td style="white-space: nowrap;">
+								<c:out value="${ddns_list.p2p_uid }" />
+							</td>
 							<td>
 								<c:choose>
-								<c:when test="${not empty ddns_list.last_access_master_key_time && ddns_list.last_access_master_key_time != ''}">
-								<fmt:formatDate var="last_access_master_key_time" value="${ddns_list.last_access_master_key_time}" type="DATE" pattern="yyyy-MM-dd HH:mm:ss" />
-								 <c:out value= "${last_access_master_key_time}"/>
-								</c:when>
-								<c:otherwise> </c:otherwise>
-								</c:choose>
-							</td>
-								<c:choose>
-							
-							<c:when test="${not empty ddns_list.p2p_uid && ddns_list.p2p_uid != ''}">
-				
-								<c:choose>
-									<c:when test="${ddns_list.p2p_priority == 2}"><td title="P2P만 사용"> <c:out value="${ddns_list.p2p_uid }" /> </td></c:when>
-									<c:when test="${ddns_list.p2p_priority == 1}"><td title="Auto">     <c:out value="${ddns_list.p2p_uid }" /> </td></c:when>
-									<c:when test="${ddns_list.p2p_priority == 0}"><td title="P2P 사용 안 함">     <c:out value="${ddns_list.p2p_uid }" /> </td></c:when>
-									<c:otherwise> <td title ="P2P 우선순위${ddns_list.p2p_priority}">    <c:out value="${ddns_list.p2p_uid }" /></td></c:otherwise>
-								</c:choose>
-								</c:when>
-								<c:otherwise>
-								 <td>
-									<c:choose>
 									<c:when test="${ddns_list.p2p_priority == 2}">P2P만 사용</c:when>
 									<c:when test="${ddns_list.p2p_priority == 1}">Auto</c:when>
 									<c:when test="${ddns_list.p2p_priority == 0}">P2P 사용 안 함</c:when>
-									<c:otherwise>${ddns_list.p2p_priority}</c:otherwise>	</c:choose>
-								</td> </c:otherwise>
+									<c:otherwise>${ddns_list.p2p_priority}</c:otherwise>
 								</c:choose>
-								
+							</td>
+														
 							<td>
 								<c:choose>
 									<c:when test="${ddns_list.p2p_device == 1}">장비 UID 보유</c:when>
@@ -614,13 +578,13 @@ function checkList(){
 
 								<c:when test="${(ddns_list.ip_status).equals('BAD')}">
 									<c:set var="ip_status" value="IP할당: BAD&#10;LOG :"></c:set>
-									<fmt:formatDate var="log_status_date" value="${ddns_list.log_call_kttddns_serviceno_to_app_deviceinfo}" type="DATE" pattern="yyyy-MM-dd HH:mm:ss" />
+									<fmt:formatDate var="log_status_date" value="${ddns_list.last_access_master_key_time}" type="DATE" pattern="yyyy-MM-dd HH:mm:ss" />
 
 									<td style="color: red;" title="${ip_status}${log_status_date}" class="fas fa-exclamation-circle">${ddns_list.empty1 }</td>
 								</c:when>
 								<c:when test="${(ddns_list.ip_status).equals('GOOD')}">
 									<c:set var="ip_status" value="IP할당 GOOD&#10;LOG :"></c:set>
-									<fmt:formatDate var="log_status_date" value="${ddns_list.log_call_kttddns_serviceno_to_app_deviceinfo}" type="DATE" pattern="yyyy-MM-dd HH:mm:ss" />
+									<fmt:formatDate var="log_status_date" value="${ddns_list.last_access_master_key_time}" type="DATE" pattern="yyyy-MM-dd HH:mm:ss" />
 
 									<td style="color: blue;" title="${ip_status}${log_status_date}" class="fas fa-exclamation-circle">${ddns_list.empty1 }</td>
 								</c:when>
@@ -630,33 +594,7 @@ function checkList(){
 							</c:choose>
 							<c:remove var="ip_status" />
 							<c:remove var="log_status_date" />
-							<c:choose>
-						<c:when test="${not empty ddns_list.app_access_id && ddns_list.app_access_id != ''}">
-						 	<td title="${ddns_list.app_date}"> 
-						 	
-						 	<a target ="_blank" href="/PushAdmin/accesslog_page.do?type=accesslog&sort=req_id&direction=desc&page=1&access_log_type=0&mac_address=${ddns_list.jumin}">
-						 	 ${ddns_list.app_access_id } </a> </td>
-						
-						 <!--	<fmt:formatDate  var="app_date" value="${ddns_list.app_date}" type="DATE" pattern="yyyy-MM-dd HH:mm:ss"/>
-							<td style=" white-space: nowrap;">${app_date } 	</td> -->
-							</c:when>
-							   <c:otherwise>
-							 <td></td> 
-							 </c:otherwise>
-							 </c:choose>
-						<c:choose>
-							 <c:when test="${not empty ddns_list.cms_access_id && ddns_list.cms_access_id != ''}">
-						 	<td title="${ddns_list.cms_date}"> 
-						 	<a target ="_blank" href="/PushAdmin/accesslog_page.do?type=accesslog&sort=req_id&direction=desc&page=1&access_log_type=1&mac_address=${ddns_list.jumin}">
-							${ddns_list.cms_access_id } </a> </td>
-						  
-							 </c:when>
-							 <c:otherwise>
-							 <td></td> 
-							 </c:otherwise>
-						</c:choose>
-
-						</tr>
+							
 						<tr align="center" height="30">
 							<td>
 								<!-- 20220121 장비 삭제/서비스 상태 변경 기능 계정 권한 확인 추가 -->
@@ -797,7 +735,8 @@ function checkList(){
 
 							</c:choose>
 							
-						<!--		<c:choose>
+						<!--		
+						<c:choose>
 						 <c:when test="${not empty ddns_list.app_access_id && ddns_list.app_access_id != ''}">
 						 	 <td class="select">	<span><c:choose>
 								 	<c:when test="${ddns_list.app_register_type == 1}"><a href="/PushAdmin/accesslog_page.do" style="text-decoration-line: none;" >수동등록</a></c:when>
@@ -812,30 +751,7 @@ function checkList(){
 							 </c:otherwise>
 						</c:choose> -->
 						
-						<c:choose>
-							 <c:when test="${not empty ddns_list.device_accesslog_type_t0 && ddns_list.device_accesslog_type_t0 != ''}">
-						 	<td title="${ddns_list.device_protocol_date_t0}">
-						 	<a target ="_blank" href="/PushAdmin/accesslog_page.do?type=accesslog&sort=req_id&direction=desc&page=1&access_log_type=2&mac_address=${ddns_list.jumin}">
-							 ${ddns_list.device_accesslog_type_t0 } </a> </td>
-						  
-							 </c:when>
-							 <c:otherwise>
-							 <td></td> 
-							 </c:otherwise>
-						</c:choose>
 						
-							<c:choose>
-							 <c:when test="${not empty ddns_list.device_accesslog_type_t1 && ddns_list.device_accesslog_type_t1 != ''}">
-						 	<td title="${ddns_list.device_protocol_date_t1}">
-						 	<a target ="_blank" href="/PushAdmin/accesslog_page.do?type=accesslog&sort=req_id&direction=desc&page=1&access_log_type=3&mac_address=${ddns_list.jumin}">
-							 ${ddns_list.device_accesslog_type_t1 } </a> </td>
-						  
-							 </c:when>
-							 <c:otherwise>
-							 <td></td> 
-							 </c:otherwise>
-						</c:choose>
-						</tr>
 						<tr height="0.1">
 							<td colspan="14">
 								<hr size="0.1" color="CDCBCB" style="border-bottom: medium;">
@@ -871,7 +787,7 @@ function checkList(){
 						<td></td>
 					</tr>
 					<tr height="30">
-						<td colspan="7"></td>
+						<td colspan="5"></td>
 						<td colspan="4">
 							<form id="search_form" name="search_form" action="/PushAdmin/${url }">
 								<select name="search_type" id="search_type">
@@ -887,10 +803,7 @@ function checkList(){
 									<c:if test="${url.equals('ddns_page.do') }">
 										<option value=9 <c:if test="${search_type == 9}">selected</c:if>>서비스 번호</option>
 										<option value=10 <c:if test="${search_type == 10}">selected</c:if>>OTP 인증</option>
-										<option value=11 <c:if test="${search_type == 11}">selected</c:if>>APP ACCESS ID</option>
-										<option value=12 <c:if test="${search_type == 12}">selected</c:if>>CMS ACCESS ID</option>
-										<option value=11 <c:if test="${search_type == 13}">selected</c:if>>DEVICE/녹화기</option>
-										<option value=12 <c:if test="${search_type == 14}">selected</c:if>>DEVICE/웹뷰어</option>
+
 									</c:if>
 								</select>
 								<input id="search_word" name="search_word" style="vertical-align: 5%; width: 140px" value="${search_word }" maxlength="40"> <input id="search_btn" type="button" style="background: #000000; color: white;" value="검색">

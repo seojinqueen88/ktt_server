@@ -17,94 +17,10 @@
 
     <select id="count_users_all" resultType="int">
 		select count(*) from users
-	</select>
-
-    <select id="select_users_all_excel_current_page" parameterType="map" resultType="java.util.LinkedHashMap" fetchSize="50000">
-		select row_idx , domain , maker, empty2,  addr, port,  p2p_uid, p2p_priority, 
-		p2p_device, regtime, register_type,  empty1, jumin,eqcat,empty3, 
-		privateip, webport, service_no, service_open, service_user, tel2,  
-		employee_no,ip_status ,otp_yn ,log_call_kttddns_serviceno_to_app_deviceinfo , 
-		COALESCE(t1.app_access_id, '') AS app_access_id, 
-        CASE
-                WHEN t1.app_access_id IS NOT NULL THEN 
-                case
-			WHEN t1.app_register_type = '0' then '자동등록' 
-			WHEN t1.app_register_type = '1' then '수동등록' 
-			WHEN t1.app_register_type = '2' then 'SmartEyesPro'
-			else t1.app_register_type end 
-            ELSE 
-			''
-        END AS app_register_type ,
-         CASE
-            WHEN (app_access_id IS NOT NULL and app_access_id !='') THEN to_char(app_date, 'YYYY-MM-DD HH24:MI:SS')
-            ELSE '-'
-        END AS app_date ,
-        COALESCE(t1.cms_access_id, '') AS cms_access_id, 
-        CASE
-            WHEN t1.cms_access_id IS NOT NULL THEN 
-                case
-				WHEN t1.cms_register_type = '0' then 'GiGaEyesPro' 
-				WHEN t1.cms_register_type = '1' then 'Olleh CCTV ' 
-				WHEN t1.cms_register_type = '2' then 'CMS LITE '
-				else t1.cms_register_type  end 
-            ELSE 
-			''
-        END AS cms_register_type ,
-         CASE
-            WHEN (cms_access_id IS NOT NULL and cms_access_id !='') THEN to_char(cms_date, 'YYYY-MM-DD HH24:MI:SS')
-            ELSE '-'
-        END AS cms_date ,
-        t1.device_accesslog_type_t0 AS device_accesslog_type_t0, 
-        t1.device_accesslog_protocol_type_t0 AS device_accesslog_protocol_type_t0 ,
-         CASE
-            WHEN (device_accesslog_type_t0 IS NOT NULL and device_accesslog_type_t0 !='') THEN to_char(device_protocol_date_t0, 'YYYY-MM-DD HH24:MI:SS')
-            ELSE '-'
-        END AS device_protocol_date_t0 ,
-          t1.device_accesslog_type_t1 AS device_accesslog_type_t1, 
-        t1.device_accesslog_protocol_type_t1 AS device_accesslog_protocol_type_t1 ,
-         CASE
-            WHEN (device_accesslog_type_t1 IS NOT NULL and device_accesslog_type_t1 !='') THEN to_char(device_protocol_date_t1, 'YYYY-MM-DD HH24:MI:SS')
-            ELSE '-'
-        END AS device_protocol_date_t1 ,
-        t1.access_rule AS access_rule
-		from (select row_number() over (order by ${sort} ${direction} nulls last) row_idx, * 
-			  from user_table_joint_management_user_log_0) as t1
-		 where row_idx between ((#{page} - 1) * 10) + 1 and (#{page} * 10)
-<!--  2023-01-31 이전 방식 -->
-<!-- 		select row_idx , domain , maker, empty2,  addr, port,  p2p_uid, p2p_priority,  -->
-<!-- 		p2p_device, regtime, register_type,  empty1, jumin,eqcat,empty3,  -->
-<!-- 		privateip, webport, service_no, service_open, service_user, tel2,  employee_no,ip_status ,otp_yn ,log_call_kttddns_serviceno_to_app_deviceinfo -->
-<!-- 		from (select row_number() over (order by ${sort} ${direction} nulls last) row_idx,   -->
-<!-- 		domain , maker, empty2,  addr, port,  p2p_uid, p2p_priority,  -->
-<!-- 		p2p_device, regtime, register_type,  empty1, jumin,eqcat,empty3, privateip, webport,  -->
-<!-- 		service_no, service_open, service_user, tel2,  employee_no,ip_status ,otp_yn ,log_call_kttddns_serviceno_to_app_deviceinfo -->
-<!-- 		  from user_table_0) as t1 -->
-<!-- 		 where row_idx between ((#{page} - 1) * 10) + 1 and (#{page} * 10) -->
-	</select>
-
-    <select id="select_users_all" parameterType="map" resultType="map" fetchSize="50000">
-    select * from (
-    select count(*) over()  as count, row_number() over (order by ${sort} ${direction} nulls last)as row_idx , * from select_users_all_view  
-    ) as t where row_idx between ((#{page} - 1) * 10) + 1 and (#{page} * 10)
-    <!--  2023-01-31 이전 방식 -->
-<!-- 		select * from (select row_number() over (order by ${sort} ${direction} nulls last) row_idx,  -->
-<!-- 		rtrim(domain) as domain, rtrim(maker) as maker, rtrim(jumin) as jumin, rtrim(addr) as addr, -->
-<!-- 		rtrim(regtime) as regtime, rtrim(webport) as webport, rtrim(empty1) as empty1, -->
-<!-- 		rtrim(eqcat) as eqcat, rtrim(empty2) as empty2, rtrim(empty3) as empty3,  -->
-<!-- 		rtrim(port) as port, rtrim(tel2) as tel2, rtrim(privateip) as privateip, service_no, -->
-<!-- 		service_open, service_user, p2p_uid, p2p_priority, p2p_device, register_type, -->
-<!-- 		employee_no,  -->
-<!-- 	    case when length(rtrim(empty1)) = 19 then case -->
-<!-- 	    when to_timestamp(rtrim(empty1), 'YYYY-MM-DD hh24:mi:ss')::timestamp -->
-<!--         without time zone is not null then case when to_timestamp(rtrim(empty1), 'YYYY-MM-DD hh24:mi:ss')::timestamp  -->
-<!--         without time zone >= now() - interval '1 month' then 'GOOD' else 'BAD' end else '' end -->
-<!--          else '' end ip_status ,otp_yn ,log_call_kttddns_serviceno_to_app_deviceinfo -->
-<!--          from users) t1 where   row_idx between ((#{page} - 1) * 10) + 1 -->
-<!--         and (#{page} * 10) -->
-	</select>
+	</select>   
 
     <select id="count_users_where_search_type" parameterType="map" resultType="int" >
-    select count(*) from user_table_joint_management_user_log_1 where ${search_type} like CONCAT('%',#{search_word},'%')
+    select count(*) from user_table_joint_management_user_log_1_test where ${search_type} like CONCAT('%',#{search_word},'%')
       <!--  2023-01-31 이전 방식 -->
 <!-- 		select count(*) from users where ${search_type} like CONCAT('%',#{search_word},'%') -->
 	</select>
@@ -112,7 +28,7 @@
     <select id="select_users_where_search_type" parameterType="map" resultType="java.util.LinkedHashMap" fetchSize="10240">
 select  *
 		from (select count(*) over()  as count ,  row_number() over (order by ${sort} ${direction} nulls last) row_idx,
-		  * from user_table_joint_management_user_log_1  where ${search_type} like CONCAT('%',#{search_word},'%') ) 
+		  * from user_table_joint_management_user_log_1_test  where ${search_type} like CONCAT('%',#{search_word},'%') ) 
 		  t1 where row_idx between ((#{page} - 1) * 10) + 1 and (#{page} * 10)
     <!--  2023-01-31 이전 방식 -->
 <!-- 		select  row_idx , domain , maker, empty2,  addr, port,  p2p_uid, p2p_priority,  -->
@@ -125,16 +41,15 @@ select  *
 	</select>
 
     <select id="count_users_where_registertype" parameterType="map" resultType="int" flushCache="true" useCache="false">
-select count(*) from user_table_joint_management_user_log_1 where ${search_type} = #{search_word}
+select count(*) from user_table_joint_management_user_log_1_test where ${search_type} = #{search_word}
 <!--  2023-01-31 이전 방식 -->
 <!-- 		select count(*) from users where ${search_type} = #{search_word} -->
 	</select>
 
     <select id="select_users_where_registertype" parameterType="map" resultType="java.util.LinkedHashMap"  fetchSize="10240" flushCache="true" useCache="false">
-	select *
-		from
-		 (select count(*) over()  as count ,   row_number() over (order by ${sort} ${direction} nulls last) row_idx, * 
-		  from user_table_joint_management_user_log_1  where ${search_type} = #{search_word}) t1 
+	select * from
+		 (select count(*) over()  as count , row_number() over (order by ${sort} ${direction} nulls last) row_idx, * 
+		  from user_table_joint_management_user_log_1_test  where ${search_type} = #{search_word}) t1 
 		where row_idx between ((#{page} - 1) * 10) + 1 and (#{page} * 10)
   <!--  2023-01-31 이전 방식 -->
 <!-- 		select row_idx , domain , maker, empty2,  addr, port,  p2p_uid, p2p_priority,  -->
@@ -155,7 +70,7 @@ select count(*) from user_table_joint_management_user_log_1 where ${search_type}
 select *
 		from
 		 (select count(*) over()  as count , row_number() over (order by ${sort} ${direction} nulls last) row_idx, * 
-		  from user_table_joint_management_user_log_1 where ${search_type} = #{search_word}) t1 
+		  from user_table_joint_management_user_log_1_test where ${search_type} = #{search_word}) t1 
 		where row_idx between ((#{page} - 1) * 10) + 1 and (#{page} * 10)
 		  <!--  2023-01-31 이전 방식 -->
 <!-- 		select row_idx , domain , maker, empty2,  addr, port,  p2p_uid, p2p_priority,  -->
@@ -169,14 +84,14 @@ select *
 	</select>
 	
     <select id="count_users_where_serviceno" parameterType="String" resultType="int">
-    select count(*) from user_table_joint_management_user_log_1 where service_no = #{service_no}
+    select count(*) from user_table_joint_management_user_log_1_test where service_no = #{service_no}
       <!--  2023-01-31 이전 방식 -->
 <!-- 		select count(*) from users where service_no = #{service_no} -->
 	</select>
     <select id="select_users_where_serviceno" parameterType="map" resultType="java.util.LinkedHashMap"  fetchSize="10240">
 select *
 		 from (select count(*) over()  as count , row_number() over (order by ${sort} ${direction} nulls last) row_idx, 
-		 * from user_table_joint_management_user_log_1  where service_no = #{service_no}) t1 where row_idx 
+		 * from user_table_joint_management_user_log_1_test  where service_no = #{service_no}) t1 where row_idx 
 		 between ((#{page} - 1) * 10) + 1 and (#{page} * 10)
 		  <!--  2023-01-31 이전 방식 -->
 <!-- 		select row_idx , domain , maker, empty2,  addr, port,  p2p_uid, p2p_priority, p2p_device, regtime, -->
@@ -189,14 +104,14 @@ select *
 
     <select id="count_users_where_serviceno_and_search_type" parameterType="map" resultType="int">
     
-    select count(*) from user_table_joint_management_user_log_1 where service_no = #{service_no} and ${search_type} like CONCAT('%',#{search_word},'%')
+    select count(*) from user_table_joint_management_user_log_1_test where service_no = #{service_no} and ${search_type} like CONCAT('%',#{search_word},'%')
      <!--  2023-01-31 이전 방식 -->
 <!-- 		select count(*) from users where service_no = #{service_no} and ${search_type} like CONCAT('%',#{search_word},'%') -->
 	</select>
     <select id="select_users_where_serviceno_and_search_type" parameterType="map" resultType="java.util.LinkedHashMap" fetchSize="10240">
 select *
 		 from (select count(*) over()  as count , row_number() over (order by ${sort} ${direction} nulls last) row_idx
-		, * from user_table_joint_management_user_log_1 
+		, * from user_table_joint_management_user_log_1_test 
 		   where service_no = #{service_no} and ${search_type} CONCAT('%',#{search_word},'%'))
 		    t1 where row_idx between ((#{page} - 1) * 10) + 1 and (#{page} * 10)
 		      <!--  2023-01-31 이전 방식 -->
@@ -210,7 +125,7 @@ select *
 	</select>
 
     <select id="count_users_where_serviceno_and_registertype" parameterType="map" resultType="int">
-    select count(*) from user_table_joint_management_user_log_1 where service_no = #{service_no} and ${search_type} = #{search_word}
+    select count(*) from user_table_joint_management_user_log_1_test where service_no = #{service_no} and ${search_type} = #{search_word}
  <!--  2023-01-31 이전 방식 -->
 <!-- 		select count(*) from users where service_no = #{service_no} and ${search_type} = #{search_word} -->
 	</select>
@@ -218,7 +133,7 @@ select *
 	select *
 		 from ( 
 		select count(*)  as count , row_number() over (order by ${sort} ${direction} nulls last) as row_idx ,*
-		from user_table_joint_management_user_log_1 where service_no = #{service_no} and ${search_type} = #{search_word})
+		from user_table_joint_management_user_log_1_test where service_no = #{service_no} and ${search_type} = #{search_word})
 		t1 where row_idx between ((#{page} - 1) * 10) + 1 and (#{page} * 10)
 		 <!--  2023-01-31 이전 방식 -->
 <!-- 		select row_idx , domain , maker, empty2,  addr, port,  p2p_uid, p2p_priority, p2p_device, regtime, -->
@@ -229,12 +144,15 @@ select *
 <!-- 		from user_table_1 where service_no = #{service_no} and ${search_type} = #{search_word}) -->
 <!-- 		t1 where row_idx between ((#{page} - 1) * 10) + 1 and (#{page} * 10) -->
 	</select>
-
-
+	
     <select id="select_users_all_excel" parameterType="map" resultType="java.util.LinkedHashMap" fetchSize="50000">
+ 		 
  		select  row_idx, domain , maker, empty2,  addr, port,  p2p_uid, p2p_priority, p2p_device, regtime,
 		register_type,  empty1,jumin, eqcat, empty3,  privateip, webport, service_no, service_open, service_user, tel2,  
-		employee_no, ip_status, otp_yn,last_access_master_key_time,to_char(t1.log_call_kttddns_serviceno_to_app_deviceinfo , 'YYYY-MM-DD HH24:MI:SS'::text) as log_call_kttddns_serviceno_to_app_deviceinfo ,
+		employee_no, ip_status, otp_yn, to_char(t1.last_access_master_key_time , 'YYYY-MM-DD HH24:MI:SS'::text) as last_access_master_key_time ,
+		<!-- (t1.log_call_kttddns_serviceno_to_app_deviceinfo , 'YYYY-MM-DD HH24:MI:SS'::text) as log_call_kttddns_serviceno_to_app_deviceinfo ,  -->
+		
+		<!-- 
 		COALESCE(t1.app_access_id, '') AS app_access_id, 
         CASE
                 WHEN t1.app_access_id IS NOT NULL THEN 
@@ -277,48 +195,34 @@ select *
             WHEN (device_accesslog_type_t1 IS NOT NULL and device_accesslog_type_t1 !='') THEN to_char(device_protocol_date_t1, 'YYYY-MM-DD HH24:MI:SS')
             ELSE '-'
         END AS device_protocol_date_t1 ,
+         -->
         t1.access_rule AS access_rule
 		 from (select row_number() over (order by ${sort} ${direction} nulls last) row_idx, *
-		   from user_table_joint_management_user_log_0) as t1
+		   from user_table_joint_management_user_log_0_test) as t1
+		   
 		    <!--  2023-01-31 이전 방식 -->
-<!--         select  row_idx, domain , maker, empty2,  addr, port,  p2p_uid, p2p_priority, p2p_device, regtime, -->
-<!-- 		register_type,  empty1,jumin, eqcat, empty3,  privateip, webport, service_no, service_open, service_user, tel2,   -->
-<!-- 		employee_no, ip_status, otp_yn	,to_char(t1.log_call_kttddns_serviceno_to_app_deviceinfo , 'YYYY-MM-DD HH24:MI:SS'::text) as log_call_kttddns_serviceno_to_app_deviceinfo -->
-<!-- 		 from (select row_number() over (order by ${sort} ${direction} nulls last) row_idx,  -->
-<!-- 		domain , maker, empty2,  addr, port,  p2p_uid, p2p_priority, p2p_device, regtime, -->
-<!-- 		register_type,  empty1,jumin, eqcat, empty3,  privateip, webport, service_no, service_open, service_user, tel2,   -->
-<!-- 		employee_no, ip_status ,otp_yn ,log_call_kttddns_serviceno_to_app_deviceinfo -->
-<!-- 		   from user_table_0) as t1 -->
+        <!--  select  row_idx, domain , maker, empty2,  addr, port,  p2p_uid, p2p_priority, p2p_device, regtime, 
+ 		register_type,  empty1,jumin, eqcat, empty3,  privateip, webport, service_no, service_open, service_user, tel2,   
+ 		employee_no, ip_status, otp_yn	,to_char(t1.log_call_kttddns_serviceno_to_app_deviceinfo , 'YYYY-MM-DD HH24:MI:SS'::text) as log_call_kttddns_serviceno_to_app_deviceinfo 
+ 		 from (select row_number() over (order by ${sort} ${direction} nulls last) row_idx,  
+ 		domain , maker, empty2,  addr, port,  p2p_uid, p2p_priority, p2p_device, regtime, 
+ 		register_type,  empty1,jumin, eqcat, empty3,  privateip, webport, service_no, service_open, service_user, tel2,   
+ 		employee_no, ip_status ,otp_yn ,log_call_kttddns_serviceno_to_app_deviceinfo , access_rule
+ 		   from user_table_0) as t1  -->
         <if test="offset !=null">
 		offset #{offset} limit 100000
 		</if>
     </select>
 
-    <select id="select_users_where_search_type_excel" parameterType="map" resultType="java.util.LinkedHashMap" fetchSize="10240">
-select row_idx, domain , maker, empty2,  addr, port,  p2p_uid, p2p_priority, p2p_device, regtime,
-		CASE
-            WHEN t1.register_type = '0' THEN '신규(0)'::text
-            WHEN t1.register_type = '1' THEN '설치변경(1)'::text
-            WHEN t1.register_type = '2' THEN '유지보수 동일교체(2)'::text
-            WHEN t1.register_type = '3' THEN 'AD (3)'::text
-            WHEN t1.register_type = '4' THEN '일반 (4)'::text
-            WHEN t1.register_type = '5' THEN '고객 [영상 LIB] (5)'::text
-            WHEN t1.register_type = '6' THEN '고객 통합 앱 서버 (6)'::text
-            WHEN t1.register_type = '7' THEN '기존 등록 (7)'::text
-            ELSE to_char(t1.register_type::double precision, '00009'::text)
-        END AS register_type
-        ,  empty1,jumin, eqcat, empty3,  privateip, webport, service_no, service_open, service_user, tel2,  
-		employee_no, ip_status, 
-		  CASE
-            WHEN t1.otp_yn = '0' THEN 'OTP인증 안함(0)'::text
-            WHEN t1.otp_yn = '1' THEN '기존사용자(1)'::text
-            WHEN t1.otp_yn = '2' THEN '관리자변경(2)'::text
-            WHEN t1.otp_yn = '3' THEN '⊚OTP 인증완료(3)'::text
-            ELSE to_char(t1.otp_yn::double precision, '9'::text)
-        END AS otp_yn,
-        last_access_master_key_time,
-        to_char(t1.log_call_kttddns_serviceno_to_app_deviceinfo , 'YYYY-MM-DD HH24:MI:SS'::text) as log_call_kttddns_serviceno_to_app_deviceinfo
-         ,	COALESCE(t1.app_access_id, '') AS app_access_id, 
+
+	<select id="select_users_all_excel_current_page" parameterType="map" resultType="java.util.LinkedHashMap" fetchSize="50000">
+		select row_idx , domain , maker, empty2,  addr, port,  p2p_uid, p2p_priority, 
+		p2p_device, regtime, register_type,  empty1, jumin,eqcat,empty3, 
+		privateip, webport, service_no, service_open, service_user, tel2,  
+		employee_no,ip_status ,otp_yn ,last_access_master_key_time , 
+		<!-- employee_no,ip_status ,otp_yn ,log_call_kttddns_serviceno_to_app_deviceinfo ,  -->
+		<!-- 
+		COALESCE(t1.app_access_id, '') AS app_access_id, 
         CASE
                 WHEN t1.app_access_id IS NOT NULL THEN 
                 case
@@ -360,37 +264,137 @@ select row_idx, domain , maker, empty2,  addr, port,  p2p_uid, p2p_priority, p2p
             WHEN (device_accesslog_type_t1 IS NOT NULL and device_accesslog_type_t1 !='') THEN to_char(device_protocol_date_t1, 'YYYY-MM-DD HH24:MI:SS')
             ELSE '-'
         END AS device_protocol_date_t1 ,
+        
+         -->
+        t1.access_rule AS access_rule
+		from (select row_number() over (order by ${sort} ${direction} nulls last) row_idx, * 
+			  from user_table_joint_management_user_log_0_test) as t1
+		 where row_idx between ((#{page} - 1) * 10) + 1 and (#{page} * 10) 
+		
+<!--  2023-01-31 이전 방식 -->
+ 		<!-- select row_idx , domain , maker, empty2,  addr, port,  p2p_uid, p2p_priority,  
+ 		p2p_device, regtime, register_type,  empty1, jumin,eqcat,empty3,  
+ 		privateip, webport, service_no, service_open, service_user, tel2,  employee_no,ip_status ,otp_yn ,log_call_kttddns_serviceno_to_app_deviceinfo , access_rule
+ 		from (select row_number() over (order by ${sort} ${direction} nulls last) row_idx,   
+ 		domain , maker, empty2,  addr, port,  p2p_uid, p2p_priority,  
+ 		p2p_device, regtime, register_type,  empty1, jumin,eqcat,empty3, privateip, webport,  
+ 		service_no, service_open, service_user, tel2,  employee_no,ip_status ,otp_yn ,log_call_kttddns_serviceno_to_app_deviceinfo , access_rule
+		from user_table_0) as t1 
+		where row_idx between ((#{page} - 1) * 10) + 1 and (#{page} * 10)  -->
+	</select>
+
+    <select id="select_users_all" parameterType="map" resultType="map" fetchSize="50000">
+    select * from (
+    select count(*) over()  as count, row_number() over (order by ${sort} ${direction} nulls last)as row_idx , * from select_users_all_view_test  
+    ) as t where row_idx between ((#{page} - 1) * 10) + 1 and (#{page} * 10)
+  
+	</select>
+
+
+    <select id="select_users_where_search_type_excel" parameterType="map" resultType="java.util.LinkedHashMap" fetchSize="10240">
+		 
+		select row_idx, domain , maker, empty2,  addr, port,  p2p_uid, p2p_priority, p2p_device, regtime,
+		CASE
+            WHEN t1.register_type = '0' THEN '신규(0)'::text
+            WHEN t1.register_type = '1' THEN '설치변경(1)'::text
+            WHEN t1.register_type = '2' THEN '유지보수 동일교체(2)'::text
+            WHEN t1.register_type = '3' THEN 'AD (3)'::text
+            WHEN t1.register_type = '4' THEN '일반 (4)'::text
+            WHEN t1.register_type = '5' THEN '고객 [영상 LIB] (5)'::text
+            WHEN t1.register_type = '6' THEN '고객 통합 앱 서버 (6)'::text
+            WHEN t1.register_type = '7' THEN '기존 등록 (7)'::text
+            ELSE to_char(t1.register_type::double precision, '00009'::text)
+        END AS register_type
+        ,  empty1,jumin, eqcat, empty3,  privateip, webport, service_no, service_open, service_user, tel2,  
+		employee_no, ip_status, 
+		  CASE
+            WHEN t1.otp_yn = '0' THEN 'OTP인증 안함(0)'::text
+            WHEN t1.otp_yn = '1' THEN '기존사용자(1)'::text
+            WHEN t1.otp_yn = '2' THEN '관리자변경(2)'::text
+            WHEN t1.otp_yn = '3' THEN 'OTP 인증완료(3)'::text
+            ELSE to_char(t1.otp_yn::double precision, '9'::text)
+        END AS otp_yn,
+        to_char(t1.last_access_master_key_time , 'YYYY-MM-DD HH24:MI:SS'::text) as last_access_master_key_time,
+        <!-- to_char(t1.log_call_kttddns_serviceno_to_app_deviceinfo , 'YYYY-MM-DD HH24:MI:SS'::text) as log_call_kttddns_serviceno_to_app_deviceinfo, -->
+        
+        <!-- 
+        	COALESCE(t1.app_access_id, '') AS app_access_id, 
+        CASE
+                WHEN t1.app_access_id IS NOT NULL THEN 
+                case
+			WHEN t1.app_register_type = '0' then '자동등록' 
+			WHEN t1.app_register_type = '1' then '수동등록' 
+			WHEN t1.app_register_type = '2' then 'SmartEyesPro'
+			else t1.app_register_type end 
+            ELSE 
+			''
+        END AS app_register_type ,
+         CASE
+            WHEN (app_access_id IS NOT NULL and app_access_id !='') THEN to_char(app_date, 'YYYY-MM-DD HH24:MI:SS')
+            ELSE '-'
+        END AS app_date ,
+        COALESCE(t1.cms_access_id, '') AS cms_access_id, 
+        CASE
+            WHEN t1.cms_access_id IS NOT NULL THEN 
+                case
+				WHEN t1.cms_register_type = '0' then 'GiGaEyesPro' 
+				WHEN t1.cms_register_type = '1' then 'Olleh CCTV ' 
+				WHEN t1.cms_register_type = '2' then 'CMS LITE '
+				else t1.cms_register_type  end 
+            ELSE 
+			''
+        END AS cms_register_type ,
+         CASE
+            WHEN (cms_access_id IS NOT NULL and cms_access_id !='') THEN to_char(cms_date, 'YYYY-MM-DD HH24:MI:SS')
+            ELSE '-'
+        END AS cms_date ,
+        t1.device_accesslog_type_t0 AS device_accesslog_type_t0, 
+        t1.device_accesslog_protocol_type_t0 AS device_accesslog_protocol_type_t0 ,
+         CASE
+            WHEN (device_accesslog_type_t0 IS NOT NULL and device_accesslog_type_t0 !='') THEN to_char(device_protocol_date_t0, 'YYYY-MM-DD HH24:MI:SS')
+            ELSE '-'
+        END AS device_protocol_date_t0 ,
+          t1.device_accesslog_type_t1 AS device_accesslog_type_t1, 
+        t1.device_accesslog_protocol_type_t1 AS device_accesslog_protocol_type_t1 ,
+         CASE
+            WHEN (device_accesslog_type_t1 IS NOT NULL and device_accesslog_type_t1 !='') THEN to_char(device_protocol_date_t1, 'YYYY-MM-DD HH24:MI:SS')
+            ELSE '-'
+        END AS device_protocol_date_t1 ,
+        -->
+        
         t1.access_rule AS access_rule from (
 		select row_number() over (order by ${sort} ${direction} nulls last) row_idx, * 
-		  from user_table_joint_management_user_log_2  where  ${search_type} like CONCAT('%',#{search_word},'%') ) t1
+		  from user_table_joint_management_user_log_2_test  where  ${search_type} like CONCAT('%',#{search_word},'%') ) t1
 		   <!--  2023-01-31 이전 방식 -->
-<!-- 		select row_idx, domain , maker, empty2,  addr, port,  p2p_uid, p2p_priority, p2p_device, regtime, -->
-<!-- 		CASE -->
-<!--             WHEN t1.register_type = '0' THEN '신규(0)'::text -->
-<!--             WHEN t1.register_type = '1' THEN '설치변경(1)'::text -->
-<!--             WHEN t1.register_type = '2' THEN '유지보수 동일교체(2)'::text -->
-<!--             WHEN t1.register_type = '3' THEN 'AD (3)'::text -->
-<!--             WHEN t1.register_type = '4' THEN '일반 (4)'::text -->
-<!--             WHEN t1.register_type = '5' THEN '고객 [영상 LIB] (5)'::text -->
-<!--             WHEN t1.register_type = '6' THEN '고객 통합 앱 서버 (6)'::text -->
-<!--             WHEN t1.register_type = '7' THEN '기존 등록 (7)'::text -->
-<!--             ELSE to_char(t1.register_type::double precision, '00009'::text) -->
-<!--         END AS register_type -->
-<!--         ,  empty1,jumin, eqcat, empty3,  privateip, webport, service_no, service_open, service_user, tel2,   -->
-<!-- 		employee_no, ip_status,  -->
-<!-- 		  CASE -->
-<!--             WHEN t1.otp_yn = '0' THEN 'OTP인증 안함(0)'::text -->
-<!--             WHEN t1.otp_yn = '1' THEN '기존사용자(1)'::text -->
-<!--             WHEN t1.otp_yn = '2' THEN '관리자변경(2)'::text -->
-<!--             WHEN t1.otp_yn = '3' THEN '⊚OTP 인증완료(3)'::text -->
-<!--             ELSE to_char(t1.otp_yn::double precision, '9'::text) -->
-<!--         END AS otp_yn,to_char(t1.log_call_kttddns_serviceno_to_app_deviceinfo , 'YYYY-MM-DD HH24:MI:SS'::text) as log_call_kttddns_serviceno_to_app_deviceinfo -->
-<!--          from ( -->
-<!-- 		select row_number() over (order by ${sort} ${direction} nulls last) row_idx,  -->
-<!-- 		domain , maker, empty2,  addr, port,  p2p_uid, p2p_priority, p2p_device, regtime, -->
-<!-- 		register_type,  empty1,jumin, eqcat, empty3,  privateip, webport, service_no, service_open, service_user, tel2,   -->
-<!-- 		employee_no, ip_status,otp_yn ,log_call_kttddns_serviceno_to_app_deviceinfo	    -->
-<!-- 		  from user_table_2 where  ${search_type} like CONCAT('%',#{search_word},'%') ) t1 -->
+ 		<!-- select row_idx, domain , maker, empty2,  addr, port,  p2p_uid, p2p_priority, p2p_device, regtime, 
+		
+		CASE
+            WHEN t1.register_type = '0' THEN '신규(0)'::text
+            WHEN t1.register_type = '1' THEN '설치변경(1)'::text
+            WHEN t1.register_type = '2' THEN '유지보수 동일교체(2)'::text
+            WHEN t1.register_type = '3' THEN 'AD (3)'::text
+            WHEN t1.register_type = '4' THEN '일반 (4)'::text
+            WHEN t1.register_type = '5' THEN '고객 [영상 LIB] (5)'::text
+            WHEN t1.register_type = '6' THEN '고객 통합 앱 서버 (6)'::text
+            WHEN t1.register_type = '7' THEN '기존 등록 (7)'::text
+            ELSE to_char(t1.register_type::double precision, '00009'::text)
+        END AS register_type
+        ,  empty1,jumin, eqcat, empty3,  privateip, webport, service_no, service_open, service_user, tel2,  
+		employee_no, ip_status, 
+		  CASE
+            WHEN t1.otp_yn = '0' THEN 'OTP인증 안함(0)'::text
+            WHEN t1.otp_yn = '1' THEN '기존사용자(1)'::text
+            WHEN t1.otp_yn = '2' THEN '관리자변경(2)'::text
+            WHEN t1.otp_yn = '3' THEN '⊚OTP 인증완료(3)'::text
+            ELSE to_char(t1.otp_yn::double precision, '9'::text)
+        END AS otp_yn,to_char(t1.log_call_kttddns_serviceno_to_app_deviceinfo , 'YYYY-MM-DD HH24:MI:SS'::text) as log_call_kttddns_serviceno_to_app_deviceinfo , accress_rule
+         from (
+		select row_number() over (order by ${sort} ${direction} nulls last) row_idx, 
+		domain , maker, empty2,  addr, port,  p2p_uid, p2p_priority, p2p_device, regtime,
+		register_type,  empty1,jumin, eqcat, empty3,  privateip, webport, service_no, service_open, service_user, tel2,  
+		employee_no, ip_status,otp_yn ,log_call_kttddns_serviceno_to_app_deviceinfo, accress_rule	   
+		  from user_table_2 where  ${search_type} like CONCAT('%',#{search_word},'%') ) t1 
+		  -->
 		  	<choose>
 			<when test="page !=null and !page.equals('')">
 			where row_idx between ((#{page} - 1) * 10) + 1 and (#{page} * 10)
@@ -401,8 +405,81 @@ select row_idx, domain , maker, empty2,  addr, port,  p2p_uid, p2p_priority, p2p
 		</choose>
 	</select>
 
-    <select id="select_users_where_registertype_excel" parameterType="map" resultType="java.util.LinkedHashMap" fetchSize="10240">
-select row_idx, domain , maker, empty2,  addr, port,  p2p_uid, p2p_priority, p2p_device, regtime,
+    <select id="select_users_where_registertype_excel" parameterType="map" resultType="java.util.LinkedHashMap" fetchSize="10240">  
+        select row_idx, domain , maker, empty2,  addr, port,  p2p_uid, p2p_priority, p2p_device, regtime,
+		CASE
+            WHEN t1.register_type = '0' THEN '신규(0)'::text
+            WHEN t1.register_type = '1' THEN '설치변경(1)'::text
+            WHEN t1.register_type = '2' THEN '유지보수 동일교체(2)'::text
+            WHEN t1.register_type = '3' THEN 'AD (3)'::text
+            WHEN t1.register_type = '4' THEN '일반 (4)'::text
+            WHEN t1.register_type = '5' THEN '고객 [영상 LIB] (5)'::text
+            WHEN t1.register_type = '6' THEN '고객 통합 앱 서버 (6)'::text
+            WHEN t1.register_type = '7' THEN '기존 등록 (7)'::text
+            ELSE to_char(t1.register_type::double precision, '00009'::text)
+        END AS register_type
+        ,  empty1,jumin, eqcat, empty3,  privateip, webport, service_no, service_open, service_user, tel2,  
+		employee_no, ip_status, 
+		  CASE
+            WHEN t1.otp_yn = '0' THEN 'OTP인증 안함(0)'::text
+            WHEN t1.otp_yn = '1' THEN '기존사용자(1)'::text
+            WHEN t1.otp_yn = '2' THEN '관리자변경(2)'::text
+            WHEN t1.otp_yn = '3' THEN 'OTP 인증완료(3)'::text
+            ELSE to_char(t1.otp_yn::double precision, '9'::text)
+        END AS otp_yn,
+        to_char(t1.last_access_master_key_time , 'YYYY-MM-DD HH24:MI:SS'::text) as last_access_master_key_time,
+        <!-- to_char(t1.log_call_kttddns_serviceno_to_app_deviceinfo , 'YYYY-MM-DD HH24:MI:SS'::text) as log_call_kttddns_serviceno_to_app_deviceinfo,-->
+        
+        <!-- 
+          COALESCE(t1.app_access_id, '') AS app_access_id, 
+        CASE
+                WHEN t1.app_access_id IS NOT NULL THEN 
+                case
+			WHEN t1.app_register_type = '0' then '자동등록' 
+			WHEN t1.app_register_type = '1' then '수동등록' 
+			WHEN t1.app_register_type = '2' then 'SmartEyesPro'
+			else t1.app_register_type end 
+            ELSE 
+			''
+        END AS app_register_type ,
+         CASE
+            WHEN (app_access_id IS NOT NULL and app_access_id !='') THEN to_char(app_date, 'YYYY-MM-DD HH24:MI:SS')
+            ELSE '-'
+        END AS app_date ,
+        COALESCE(t1.cms_access_id, '') AS cms_access_id, 
+        CASE
+            WHEN t1.cms_access_id IS NOT NULL THEN 
+                case
+				WHEN t1.cms_register_type = '0' then 'GiGaEyesPro' 
+				WHEN t1.cms_register_type = '1' then 'Olleh CCTV ' 
+				WHEN t1.cms_register_type = '2' then 'CMS LITE '
+				else t1.cms_register_type  end 
+            ELSE 
+			''
+        END AS cms_register_type ,
+         CASE
+            WHEN (cms_access_id IS NOT NULL and cms_access_id !='') THEN to_char(cms_date, 'YYYY-MM-DD HH24:MI:SS')
+            ELSE '-'
+        END AS cms_date ,
+        t1.device_accesslog_type_t0 AS device_accesslog_type_t0, 
+        t1.device_accesslog_protocol_type_t0 AS device_accesslog_protocol_type_t0 ,
+         CASE
+            WHEN (device_accesslog_type_t0 IS NOT NULL and device_accesslog_type_t0 !='') THEN to_char(device_protocol_date_t0, 'YYYY-MM-DD HH24:MI:SS')
+            ELSE '-'
+        END AS device_protocol_date_t0 ,
+          t1.device_accesslog_type_t1 AS device_accesslog_type_t1, 
+        t1.device_accesslog_protocol_type_t1 AS device_accesslog_protocol_type_t1 ,
+         CASE
+            WHEN (device_accesslog_type_t1 IS NOT NULL and device_accesslog_type_t1 !='') THEN to_char(device_protocol_date_t1, 'YYYY-MM-DD HH24:MI:SS')
+            ELSE '-'
+        END AS device_protocol_date_t1 , 
+         -->
+        t1.access_rule AS access_rule
+         from (select row_number() over (order by ${sort} ${direction} nulls last) row_idx, *   
+		 from user_table_joint_management_user_log_2_test  where ${search_type} = #{search_word}) t1
+		 
+		  <!--  2023-01-31 이전 방식 -->
+<!-- 		select row_idx, domain , maker, empty2,  addr, port,  p2p_uid, p2p_priority, p2p_device, regtime, 
 		CASE
             WHEN t1.register_type = '0' THEN '신규(0)'::text
             WHEN t1.register_type = '1' THEN '설치변경(1)'::text
@@ -423,81 +500,12 @@ select row_idx, domain , maker, empty2,  addr, port,  p2p_uid, p2p_priority, p2p
             WHEN t1.otp_yn = '3' THEN '⊚OTP 인증완료(3)'::text
             ELSE to_char(t1.otp_yn::double precision, '9'::text)
         END AS otp_yn,
-        last_access_master_key_time,
-        to_char(t1.log_call_kttddns_serviceno_to_app_deviceinfo , 'YYYY-MM-DD HH24:MI:SS'::text) as log_call_kttddns_serviceno_to_app_deviceinfo
-          ,	COALESCE(t1.app_access_id, '') AS app_access_id, 
-        CASE
-                WHEN t1.app_access_id IS NOT NULL THEN 
-                case
-			WHEN t1.app_register_type = '0' then '자동등록' 
-			WHEN t1.app_register_type = '1' then '수동등록' 
-			WHEN t1.app_register_type = '2' then 'SmartEyesPro'
-			else t1.app_register_type end 
-            ELSE 
-			''
-        END AS app_register_type ,
-         CASE
-            WHEN (app_access_id IS NOT NULL and app_access_id !='') THEN to_char(app_date, 'YYYY-MM-DD HH24:MI:SS')
-            ELSE '-'
-        END AS app_date ,
-        COALESCE(t1.cms_access_id, '') AS cms_access_id, 
-        CASE
-            WHEN t1.cms_access_id IS NOT NULL THEN 
-                case
-				WHEN t1.cms_register_type = '0' then 'GiGaEyesPro' 
-				WHEN t1.cms_register_type = '1' then 'Olleh CCTV ' 
-				WHEN t1.cms_register_type = '2' then 'CMS LITE '
-				else t1.cms_register_type  end 
-            ELSE 
-			''
-        END AS cms_register_type ,
-         CASE
-            WHEN (cms_access_id IS NOT NULL and cms_access_id !='') THEN to_char(cms_date, 'YYYY-MM-DD HH24:MI:SS')
-            ELSE '-'
-        END AS cms_date ,
-        t1.device_accesslog_type_t0 AS device_accesslog_type_t0, 
-        t1.device_accesslog_protocol_type_t0 AS device_accesslog_protocol_type_t0 ,
-         CASE
-            WHEN (device_accesslog_type_t0 IS NOT NULL and device_accesslog_type_t0 !='') THEN to_char(device_protocol_date_t0, 'YYYY-MM-DD HH24:MI:SS')
-            ELSE '-'
-        END AS device_protocol_date_t0 ,
-          t1.device_accesslog_type_t1 AS device_accesslog_type_t1, 
-        t1.device_accesslog_protocol_type_t1 AS device_accesslog_protocol_type_t1 ,
-         CASE
-            WHEN (device_accesslog_type_t1 IS NOT NULL and device_accesslog_type_t1 !='') THEN to_char(device_protocol_date_t1, 'YYYY-MM-DD HH24:MI:SS')
-            ELSE '-'
-        END AS device_protocol_date_t1 ,
-        t1.access_rule AS access_rule
-         from (select row_number() over (order by ${sort} ${direction} nulls last) row_idx, *   
-		 from user_table_joint_management_user_log_2  where ${search_type} = #{search_word}) t1
-		  <!--  2023-01-31 이전 방식 -->
-<!-- 		select row_idx, domain , maker, empty2,  addr, port,  p2p_uid, p2p_priority, p2p_device, regtime, -->
-<!-- 		CASE -->
-<!--             WHEN t1.register_type = '0' THEN '신규(0)'::text -->
-<!--             WHEN t1.register_type = '1' THEN '설치변경(1)'::text -->
-<!--             WHEN t1.register_type = '2' THEN '유지보수 동일교체(2)'::text -->
-<!--             WHEN t1.register_type = '3' THEN 'AD (3)'::text -->
-<!--             WHEN t1.register_type = '4' THEN '일반 (4)'::text -->
-<!--             WHEN t1.register_type = '5' THEN '고객 [영상 LIB] (5)'::text -->
-<!--             WHEN t1.register_type = '6' THEN '고객 통합 앱 서버 (6)'::text -->
-<!--             WHEN t1.register_type = '7' THEN '기존 등록 (7)'::text -->
-<!--             ELSE to_char(t1.register_type::double precision, '00009'::text) -->
-<!--         END AS register_type -->
-<!--         ,  empty1,jumin, eqcat, empty3,  privateip, webport, service_no, service_open, service_user, tel2,   -->
-<!-- 		employee_no, ip_status, -->
-<!-- 		 CASE -->
-<!--             WHEN t1.otp_yn = '0' THEN 'OTP인증 안함(0)'::text -->
-<!--             WHEN t1.otp_yn = '1' THEN '기존사용자(1)'::text -->
-<!--             WHEN t1.otp_yn = '2' THEN '관리자변경(2)'::text -->
-<!--             WHEN t1.otp_yn = '3' THEN '⊚OTP 인증완료(3)'::text -->
-<!--             ELSE to_char(t1.otp_yn::double precision, '9'::text) -->
-<!--         END AS otp_yn, -->
-<!--         to_char(t1.log_call_kttddns_serviceno_to_app_deviceinfo , 'YYYY-MM-DD HH24:MI:SS'::text) as log_call_kttddns_serviceno_to_app_deviceinfo -->
-<!--          from (select row_number() over (order by ${sort} ${direction} nulls last) row_idx,  -->
-<!-- 		domain , maker, empty2,  addr, port,  p2p_uid, p2p_priority, p2p_device, regtime, -->
-<!-- 		register_type,  empty1,jumin, eqcat, empty3,  privateip, webport, service_no, service_open, service_user, tel2,   -->
-<!-- 		employee_no, ip_status,otp_yn ,log_call_kttddns_serviceno_to_app_deviceinfo	     -->
-<!-- 		 from user_table_2 where ${search_type} = #{search_word}) t1 -->
+        to_char(t1.log_call_kttddns_serviceno_to_app_deviceinfo , 'YYYY-MM-DD HH24:MI:SS'::text) as log_call_kttddns_serviceno_to_app_deviceinfo , accress_rule
+         from (select row_number() over (order by ${sort} ${direction} nulls last) row_idx, 
+		domain , maker, empty2,  addr, port,  p2p_uid, p2p_priority, p2p_device, regtime,
+		register_type,  empty1,jumin, eqcat, empty3,  privateip, webport, service_no, service_open, service_user, tel2,  
+		employee_no, ip_status,otp_yn ,log_call_kttddns_serviceno_to_app_deviceinfo , accress_rule	    
+		 from user_table_2 where ${search_type} = #{search_word}) t1  -->
 		<choose>
 			<when test="page !=null and !page.equals('')">
 			where row_idx between ((#{page} - 1) * 10) + 1 and (#{page} * 10)
@@ -508,12 +516,17 @@ select row_idx, domain , maker, empty2,  addr, port,  p2p_uid, p2p_priority, p2p
 		</choose>
 	</select>
     <select id="select_users_where_serviceno_excel" parameterType="map" resultType="java.util.LinkedHashMap" fetchSize="20000">
+     
      select row_idx , domain , maker, empty2,  addr, port,  p2p_uid, p2p_priority, p2p_device, regtime,
 		register_type,  empty1,jumin, eqcat, empty3,  privateip, webport, service_no, service_open, service_user, tel2,  
 		employee_no, ip_status ,  otp_yn ,
-		last_access_master_key_time,
-		to_char(t1.log_call_kttddns_serviceno_to_app_deviceinfo , 'YYYY-MM-DD HH24:MI:SS'::text) as log_call_kttddns_serviceno_to_app_deviceinfo
-		   ,	COALESCE(t1.app_access_id, '') AS app_access_id, 
+		to_char(t1.last_access_master_key_time , 'YYYY-MM-DD HH24:MI:SS'::text) as last_access_master_key_time,
+		<!-- to_char(t1.log_call_kttddns_serviceno_to_app_deviceinfo , 'YYYY-MM-DD HH24:MI:SS'::text) as log_call_kttddns_serviceno_to_app_deviceinfo,
+		 -->
+		
+		
+		<!-- 
+			COALESCE(t1.app_access_id, '') AS app_access_id, 
         CASE
                 WHEN t1.app_access_id IS NOT NULL THEN 
                 case
@@ -555,21 +568,25 @@ select row_idx, domain , maker, empty2,  addr, port,  p2p_uid, p2p_priority, p2p
             WHEN (device_accesslog_type_t1 IS NOT NULL and device_accesslog_type_t1 !='') THEN to_char(device_protocol_date_t1, 'YYYY-MM-DD HH24:MI:SS')
             ELSE '-'
         END AS device_protocol_date_t1 ,
+         -->
         t1.access_rule AS access_rule
         from 
 		(select row_number() over (order by ${sort} ${direction} nulls last) row_idx,*
-		 from user_table_joint_management_user_log_0  where service_no = #{service_no}
+		 from user_table_joint_management_user_log_0_test  where service_no = #{service_no}
+		  
 		   <!--  2023-01-31 이전 방식 -->
-<!--         select row_idx , domain , maker, empty2,  addr, port,  p2p_uid, p2p_priority, p2p_device, regtime, -->
-<!-- 		register_type,  empty1,jumin, eqcat, empty3,  privateip, webport, service_no, service_open, service_user, tel2,   -->
-<!-- 		employee_no, ip_status ,  otp_yn , -->
-<!-- 		to_char(t1.log_call_kttddns_serviceno_to_app_deviceinfo , 'YYYY-MM-DD HH24:MI:SS'::text) as log_call_kttddns_serviceno_to_app_deviceinfo -->
-<!-- 		 from  -->
-<!-- 		(select row_number() over (order by ${sort} ${direction} nulls last) row_idx, -->
-<!-- 		domain , maker, empty2,  addr, port,  p2p_uid, p2p_priority, p2p_device, regtime, -->
-<!-- 		register_type,  empty1,jumin, eqcat, empty3,  privateip, webport, service_no, service_open, service_user, tel2,   -->
-<!-- 		employee_no, ip_status , otp_yn  ,log_call_kttddns_serviceno_to_app_deviceinfo -->
-<!-- 		 from user_table_0 where service_no = #{service_no} -->
+         <!-- 
+         select row_idx , domain , maker, empty2,  addr, port,  p2p_uid, p2p_priority, p2p_device, regtime,
+ 		register_type,  empty1,jumin, eqcat, empty3,  privateip, webport, service_no, service_open, service_user, tel2, 
+ 		employee_no, ip_status ,  otp_yn , 
+ 		to_char(t1.log_call_kttddns_serviceno_to_app_deviceinfo , 'YYYY-MM-DD HH24:MI:SS'::text) as log_call_kttddns_serviceno_to_app_deviceinfo , access_rule
+ 		 from  
+ 		(select row_number() over (order by ${sort} ${direction} nulls last) row_idx, 
+ 		domain , maker, empty2,  addr, port,  p2p_uid, p2p_priority, p2p_device, regtime,
+ 		register_type,  empty1,jumin, eqcat, empty3,  privateip, webport, service_no, service_open, service_user, tel2,  
+ 		employee_no, ip_status , otp_yn  ,log_call_kttddns_serviceno_to_app_deviceinfo , access_rule
+ 		 from user_table_0 where service_no = #{service_no} 
+ 		  -->
 		<choose>
 			<when test="page !=null and !page.equals('')">
 			where row_idx between ((#{page} - 1) * 10) + 1 and (#{page} * 10)
@@ -582,12 +599,15 @@ select row_idx, domain , maker, empty2,  addr, port,  p2p_uid, p2p_priority, p2p
     </select>
 
     <select id="select_users_where_serviceno_and_search_type_excel" parameterType="map" resultType="java.util.LinkedHashMap" fetchSize="20000">
-	select row_idx , domain , maker, empty2,  addr, port,  p2p_uid, p2p_priority, p2p_device, regtime,
+		
+		select row_idx , domain , maker, empty2,  addr, port,  p2p_uid, p2p_priority, p2p_device, regtime,
 		register_type,  empty1,jumin, eqcat, empty3,  privateip, webport, service_no, service_open, service_user, tel2,  
-		employee_no, ip_status , otp_yn,
-		last_access_master_key_time,
-		to_char(t1.log_call_kttddns_serviceno_to_app_deviceinfo , 'YYYY-MM-DD HH24:MI:SS'::text) as log_call_kttddns_serviceno_to_app_deviceinfo
-		 ,	COALESCE(t1.app_access_id, '') AS app_access_id, 
+		employee_no, ip_status , otp_yn,		
+		to_char(t1.last_access_master_key_time , 'YYYY-MM-DD HH24:MI:SS'::text) as last_access_master_key_time,
+		<!--to_char(t1.log_call_kttddns_serviceno_to_app_deviceinfo , 'YYYY-MM-DD HH24:MI:SS'::text) as log_call_kttddns_serviceno_to_app_deviceinfo,
+		 -->
+		<!--  
+			COALESCE(t1.app_access_id, '') AS app_access_id, 
         CASE
                 WHEN t1.app_access_id IS NOT NULL THEN 
                 case
@@ -629,31 +649,38 @@ select row_idx, domain , maker, empty2,  addr, port,  p2p_uid, p2p_priority, p2p
             WHEN (device_accesslog_type_t1 IS NOT NULL and device_accesslog_type_t1 !='') THEN to_char(device_protocol_date_t1, 'YYYY-MM-DD HH24:MI:SS')
             ELSE '-'
         END AS device_protocol_date_t1 ,
+        -->
         t1.access_rule AS access_rule
          from (
-		select row_number() over (order by ${sort} ${direction} nulls last) row_idx, * from user_table_joint_management_user_log_0 
+		select row_number() over (order by ${sort} ${direction} nulls last) row_idx, * from user_table_joint_management_user_log_0_test
 		 where service_no = #{service_no} and ${search_type} like CONCAT('%',#{search_word},'%') ) as t1 
+		 
 		   <!--  2023-01-31 이전 방식 -->
-<!-- 		select row_idx , domain , maker, empty2,  addr, port,  p2p_uid, p2p_priority, p2p_device, regtime, -->
-<!-- 		register_type,  empty1,jumin, eqcat, empty3,  privateip, webport, service_no, service_open, service_user, tel2,   -->
-<!-- 		employee_no, ip_status , otp_yn,to_char(t1.log_call_kttddns_serviceno_to_app_deviceinfo , 'YYYY-MM-DD HH24:MI:SS'::text) as log_call_kttddns_serviceno_to_app_deviceinfo -->
-<!-- 		 from ( -->
-<!-- 		select row_number() over (order by ${sort} ${direction} nulls last) row_idx,  -->
-<!-- 		domain , maker, empty2,  addr, port,  p2p_uid, p2p_priority, p2p_device, regtime, -->
-<!-- 		register_type,  empty1,jumin, eqcat, empty3,  privateip, webport, service_no, service_open, service_user, tel2,   -->
-<!-- 		employee_no, ip_status , otp_yn ,log_call_kttddns_serviceno_to_app_deviceinfo from user_table_0  -->
-<!-- 		 where service_no = #{service_no} and ${search_type} like CONCAT('%',#{search_word},'%') ) as t1  -->
+ 		<!-- 
+ 		select row_idx , domain , maker, empty2,  addr, port,  p2p_uid, p2p_priority, p2p_device, regtime, 
+ 		register_type,  empty1,jumin, eqcat, empty3,  privateip, webport, service_no, service_open, service_user, tel2,  
+ 		employee_no, ip_status , otp_yn,to_char(t1.log_call_kttddns_serviceno_to_app_deviceinfo , 'YYYY-MM-DD HH24:MI:SS'::text) as log_call_kttddns_serviceno_to_app_deviceinfo, access_rule
+ 		 from (
+		select row_number() over (order by ${sort} ${direction} nulls last) row_idx,  
+ 		domain , maker, empty2,  addr, port,  p2p_uid, p2p_priority, p2p_device, regtime,
+ 		register_type,  empty1,jumin, eqcat, empty3,  privateip, webport, service_no, service_open, service_user, tel2,   
+ 		employee_no, ip_status , otp_yn ,log_call_kttddns_serviceno_to_app_deviceinfo from user_table_0  , access_rule
+ 		 where service_no = #{service_no} and ${search_type} like CONCAT('%',#{search_word},'%') ) as t1  
+ 		 --> 
 		 <if test="page !=null and !page.equals('')">
 			where row_idx between ((#{page} - 1) * 10) + 1 and (#{page} * 10)
 		</if>
 	</select>
     <select id="select_users_where_serviceno_and_registertype_excel" parameterType="map" resultType="java.util.LinkedHashMap" fetchSize="20000">
-select row_idx , domain , maker, empty2,  addr, port,  p2p_uid, p2p_priority, p2p_device, regtime,
+	 
+	select row_idx , domain , maker, empty2,  addr, port,  p2p_uid, p2p_priority, p2p_device, regtime,
 		register_type,  empty1,jumin, eqcat,   empty3, privateip, webport, service_no, service_open, service_user, tel2,  
 		employee_no, ip_status , otp_yn,
-		last_access_master_key_time,
-		to_char(t1.log_call_kttddns_serviceno_to_app_deviceinfo , 'YYYY-MM-DD HH24:MI:SS'::text) as log_call_kttddns_serviceno_to_app_deviceinfo
-		,	COALESCE(t1.app_access_id, '') AS app_access_id, 
+		<!-- last_access_master_key_time,  -->
+		<!--to_char(t1.log_call_kttddns_serviceno_to_app_deviceinfo , 'YYYY-MM-DD HH24:MI:SS'::text) as log_call_kttddns_serviceno_to_app_deviceinfo,  -->
+		to_char(t1.last_access_master_key_time , 'YYYY-MM-DD HH24:MI:SS'::text) as last_access_master_key_time,
+		<!-- 
+			COALESCE(t1.app_access_id, '') AS app_access_id, 
         CASE
                 WHEN t1.app_access_id IS NOT NULL THEN 
                 case
@@ -695,18 +722,22 @@ select row_idx , domain , maker, empty2,  addr, port,  p2p_uid, p2p_priority, p2
             WHEN (device_accesslog_type_t1 IS NOT NULL and device_accesslog_type_t1 !='') THEN to_char(device_protocol_date_t1, 'YYYY-MM-DD HH24:MI:SS')
             ELSE '-'
         END AS device_protocol_date_t1 ,
+         -->
         t1.access_rule AS access_rule
          from (
-		select row_number() over (order by ${sort} ${direction} nulls last) row_idx, * from user_table_joint_management_user_log_0  where 
+		select row_number() over (order by ${sort} ${direction} nulls last) row_idx, * from user_table_joint_management_user_log_0_test  where 
+		 
 		 <!--  2023-01-31 이전 방식 -->
-<!-- 		select row_idx , domain , maker, empty2,  addr, port,  p2p_uid, p2p_priority, p2p_device, regtime, -->
-<!-- 		register_type,  empty1,jumin, eqcat,   empty3, privateip, webport, service_no, service_open, service_user, tel2,   -->
-<!-- 		employee_no, ip_status , otp_yn,to_char(t1.log_call_kttddns_serviceno_to_app_deviceinfo , 'YYYY-MM-DD HH24:MI:SS'::text) as log_call_kttddns_serviceno_to_app_deviceinfo -->
-<!-- 		 from ( -->
-<!-- 		select row_number() over (order by ${sort} ${direction} nulls last) row_idx, domain , maker, empty2,  addr, port,  p2p_uid, p2p_priority, p2p_device, regtime, -->
-<!-- 		register_type,  empty1,jumin, eqcat, empty3,  privateip, webport, service_no, service_open, service_user, tel2,   -->
-<!-- 		employee_no, ip_status , otp_yn ,log_call_kttddns_serviceno_to_app_deviceinfo -->
-<!-- 		from user_table_0 where  -->
+ 		<!-- 
+ 		select row_idx , domain , maker, empty2,  addr, port,  p2p_uid, p2p_priority, p2p_device, regtime, 
+ 		register_type,  empty1,jumin, eqcat,   empty3, privateip, webport, service_no, service_open, service_user, tel2,   
+ 		employee_no, ip_status , otp_yn,to_char(t1.log_call_kttddns_serviceno_to_app_deviceinfo , 'YYYY-MM-DD HH24:MI:SS'::text) as log_call_kttddns_serviceno_to_app_deviceinfo , access_rule
+ 		 from ( 
+ 		select row_number() over (order by ${sort} ${direction} nulls last) row_idx, domain , maker, empty2,  addr, port,  p2p_uid, p2p_priority, p2p_device, regtime, 
+ 		register_type,  empty1,jumin, eqcat, empty3,  privateip, webport, service_no, service_open, service_user, tel2,  
+ 		employee_no, ip_status , otp_yn ,log_call_kttddns_serviceno_to_app_deviceinfo , access_rule
+ 		from user_table_0 where
+ 		 -->  
 		<choose>
 			<when test="search_type !=null and search_type.equals('register_type')">
 				service_no = #{service_no} and ${search_type} = CONCAT(#{search_word} ,'%')

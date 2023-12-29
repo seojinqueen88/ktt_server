@@ -123,7 +123,8 @@ public class Mobile_controller
 		CExcelDocBuild excelBuilder = new CExcelDocBuild(labels, columnWidth , "Mobile");
 		long time = System.currentTimeMillis();
 		SimpleDateFormat dayTime = new SimpleDateFormat("yyyyMMddHHmmss");
-		String str = dayTime.format(new Date(time));
+		String str = "[" + type + "]" + dayTime.format(new Date(time));
+		//String str = dayTime.format(new Date(time));
 		String fileName = str + ".xlsx";
 		switch(type)
 		{

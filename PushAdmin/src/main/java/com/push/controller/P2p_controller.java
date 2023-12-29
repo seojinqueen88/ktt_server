@@ -117,7 +117,7 @@ public class P2p_controller
 		CExcelDocBuild excelBuilder = new CExcelDocBuild(labels, columnWidth , "P2P");
 		long time = System.currentTimeMillis();
 		SimpleDateFormat dayTime = new SimpleDateFormat("yyyyMMddHHmmss");
-		String str = dayTime.format(new Date(time));
+		String str = "[" + type + "]" + dayTime.format(new Date(time));
 		String fileName = str + ".xlsx";
 		List<Map<String, Object>> p2p_list = null;
 		String mac_sql = "";
