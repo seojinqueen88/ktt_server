@@ -565,19 +565,19 @@ public class ApiController {
 					}
 				default:
 					break;
-
-				case "KTTDDNS_SERVICENO_TO_OTPLIST":
+				//case "KTTDDNS_SERVICENO_TO_OTPLIST":
+					case "KTTDDNS_SERVICENO_TO_UNOTPLIST":
 					requestKey = (String) request.get("auth");
 					if (Encryptions.isAvailableKey(command, requestKey))
-						result = KTTDDNS_SERVICENO_TO_OTPLIST(request, response);
+						result = KTTDDNS_SERVICENO_TO_UNOTPLIST(request, response);
 					else
 						result = "nopermission";
 					break;
 					
-				case "KTTDDNS_SERVICENO_TO_OTPLIST_1HOUR":
+				case "KTTDDNS_SERVICENO_TO_UNOTPLIST_1HOUR":
 					requestKey = (String) request.get("auth");
 					if (Encryptions.isAvailableKey(command, requestKey))
-						result = KTTDDNS_SERVICENO_TO_OTPLIST_1HOUR(request, response);
+						result = KTTDDNS_SERVICENO_TO_UNOTPLIST_1HOUR(request, response);
 					else
 						result = "nopermission";
 					break;
@@ -2764,7 +2764,6 @@ public class ApiController {
 					continue;
 				}
 				
-				
 				Map<String, Object> device = new HashMap<>();
 				device.put("serviceNo", tmpDevice.get("service_no"));
 				device.put("registerType", tmpDevice.get("register_type"));
@@ -2793,7 +2792,8 @@ public class ApiController {
 					
 					String maker = tmpDevice.get("maker").toString();
 					String tmpMaker = "RIFAT";
-					
+					// 2023.12.27 정보보안개선 수정사항 대료 적용
+					/*
 					if (allUpgrede) 
 					{
 						logger.debug("장비의 버전이 모두 최신버전을 경우");
@@ -2834,6 +2834,7 @@ public class ApiController {
 							device.put("model", tmpDevice.get("model"));
 							device.put("fwUp", 0);
 						}
+						
 					}
 					else  
 					{
@@ -2841,9 +2842,8 @@ public class ApiController {
 						device.put("model", tmpDevice.get("model"));
 						device.put("fwUp", (device_ver < last_ver) ? 1 : 0);
 					}
-					
-					
-					/*
+					*/
+			
 					if (allUpgrede) 
 					{
 						if(maker.trim().equals(tmpMaker))
@@ -2852,21 +2852,28 @@ public class ApiController {
 							{
 								if(otp_yn == 3)
 								{
+									logger.debug("모든 장비(5대)가 3 OTP 인증 완료 일 경우 : fwup = 0으로 device List를 전달한다.");
 									device.put("model", tmpDevice.get("model"));
 									device.put("fwUp", 0);
 								}
-								else
+								else 
 								{
-									response.put("deviceList", deviceList);
+								
+                					logger.debug("하나라도 OTP 인증이 안했을 경우 (0 OTP 인증안함, 1 기존통합사용자, 2 관리자변경) :  msg에 아래의 내용과 장비의 mac 을 현시하며 device List는 null로 전달한다.");
+                					List<Map<String, Object>> emptyList = new ArrayList<>();
+                					response.put("deviceList", emptyList);
 									msg = "장비에서 [우클릭] →[시스템]→[사용자수정]에서 OTP인증 후 비밀번호 변경을 진행해주세요. (" + macList + ")";
 									result = "success";
+									emptyList= null;
 									break;
 								}
+								
 							}
 						}
-		
-						else if(!maker.trim().equals(tmpMaker) || rifa_device > 5)
+						//20240102 시나리오 확인 예정
+						else if(bNoMaker_device || rifa_device > 5)
 						{
+							logger.debug(" 요청한 모든 장비가 이화트론 장비가 아니거나, 이화트론 장비 이지만 장비의 갯수가 5개보다 많을 경우 fwup = 0으로 device List를 전달한다. ");
 							device.put("model", tmpDevice.get("model"));
 							device.put("fwUp", 0);
 
@@ -2874,10 +2881,12 @@ public class ApiController {
 					}
 					else  
 					{
+						logger.debug("장비의 버전이 1개라도 낮을 경우 :  모든 장비의 device List를 전달하며, 최신 버전이 아닌 장비는 fwup = 1, 최신 버전인 장비는 fwup = 0으로 전달 한다. ");
 						device.put("model", tmpDevice.get("model"));
 						device.put("fwUp", (device_ver < last_ver) ? 1 : 0);
 					}
-						*/
+					
+						
 						// SJ add
 /*
 						int access_rule = tmpDevice.containsKey("access_rule") ? (int) tmpDevice.get("access_rule") : 0;
@@ -3715,7 +3724,7 @@ public class ApiController {
 	 */
 
 	//SJ OTP 일괄인증 기능 미인증 단말 요청 API요청20231129 / 추가20231210
-	public String KTTDDNS_SERVICENO_TO_OTPLIST(Map<String, Object> request, Map<String, Object> response) {
+	public String KTTDDNS_SERVICENO_TO_UNOTPLIST(Map<String, Object> request, Map<String, Object> response) {
 		@SuppressWarnings("unchecked")
 
 		ArrayList<String> serviceNoList = (ArrayList<String>) request.get("serviceNoList");
@@ -3755,16 +3764,39 @@ public class ApiController {
 			if (logger.isDebugEnabled())
 				e.printStackTrace();
 		}
+		
+
 		//ktt test server용
-		List<Map<String, Object>> deviceListOrg = apiService.selectDevicePhoneWhereInServicenoKttTEST(serviceNoListString.toString(), phone);
+		List<Map<String, Object>> deviceListOrg = apiService.selectDeviceMacWhereInServicenoPhoneOTPKttTEST(serviceNoListString.toString(), phone);
 
 		//ktt 상용 서버 용
 		//List<Map<String, Object>> deviceListOrg = apiService.selectDevicePhoneWhereInServiceno(serviceNoListString.toString(), phone);
 		
+		
+		
 		if (deviceListOrg != null) {
 			final List<Map<String, Object>> deviceList = new ArrayList<>();
 			deviceListOrg.parallelStream().forEach(deviceItem -> {
-
+				
+				/*
+				if (deviceItem != null && deviceItem.containsKey("domainType")) {
+					int domainType = (int) deviceItem.get("domainType");
+					
+					String maker = deviceItem.get("maker").toString();
+					String tmpMaker = "dahua";
+					logger.debug("domainType : "+domainType);
+					if ((domainType == 22 || domainType == 23)) // 'octdvr.co.kr' 20 'octnvr.co.kr' 21
+					{
+						logger.debug("telecopview 도메인 사용 장비");
+						if(!maker.trim().equals(tmpMaker))
+						{
+							logger.debug("제조사가 dahua는 제외");
+							//deviceList.add(deviceItem);
+						}
+					}
+				}*/
+				
+				
 				deviceList.add(deviceItem);
 			});
 
@@ -3776,7 +3808,7 @@ public class ApiController {
 	}
 
 	//SJ OTP 일괄인증 기능1시간 이내 미인증 단말 요청 API요청20231129 / 추가20231211
-		public String KTTDDNS_SERVICENO_TO_OTPLIST_1HOUR(Map<String, Object> request, Map<String, Object> response) {
+		public String KTTDDNS_SERVICENO_TO_UNOTPLIST_1HOUR(Map<String, Object> request, Map<String, Object> response) {
 			@SuppressWarnings("unchecked")
 
 			ArrayList<String> serviceNoList = (ArrayList<String>) request.get("serviceNoList");
@@ -3817,7 +3849,7 @@ public class ApiController {
 					e.printStackTrace();
 			}
 			//ktt test server용
-			List<Map<String, Object>> deviceListOrg = apiService.selectDeviceOTP1HourTimeWhereInServicenoKttTEST(serviceNoListString.toString(), phone);
+			List<Map<String, Object>> deviceListOrg = apiService.selectDeviceMacWhereInServicenoPhoneOTP1HourKttTEST(serviceNoListString.toString(), phone);
 
 			//ktt 상용 서버 용
 			//List<Map<String, Object>> deviceListOrg = apiService.selectDeviceOTP1HourTimeWhereInServiceno(serviceNoListString.toString(), phone);

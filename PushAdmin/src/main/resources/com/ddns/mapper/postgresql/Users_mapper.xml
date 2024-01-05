@@ -20,7 +20,7 @@
 	</select>   
 
     <select id="count_users_where_search_type" parameterType="map" resultType="int" >
-    select count(*) from user_table_joint_management_user_log_1_test where ${search_type} like CONCAT('%',#{search_word},'%')
+    select count(*) from user_table_joint_management_user_log_1 where ${search_type} like CONCAT('%',#{search_word},'%')
       <!--  2023-01-31 이전 방식 -->
 <!-- 		select count(*) from users where ${search_type} like CONCAT('%',#{search_word},'%') -->
 	</select>
@@ -28,7 +28,7 @@
     <select id="select_users_where_search_type" parameterType="map" resultType="java.util.LinkedHashMap" fetchSize="10240">
 select  *
 		from (select count(*) over()  as count ,  row_number() over (order by ${sort} ${direction} nulls last) row_idx,
-		  * from user_table_joint_management_user_log_1_test  where ${search_type} like CONCAT('%',#{search_word},'%') ) 
+		  * from user_table_joint_management_user_log_1  where ${search_type} like CONCAT('%',#{search_word},'%') ) 
 		  t1 where row_idx between ((#{page} - 1) * 10) + 1 and (#{page} * 10)
     <!--  2023-01-31 이전 방식 -->
 <!-- 		select  row_idx , domain , maker, empty2,  addr, port,  p2p_uid, p2p_priority,  -->
@@ -41,7 +41,7 @@ select  *
 	</select>
 
     <select id="count_users_where_registertype" parameterType="map" resultType="int" flushCache="true" useCache="false">
-select count(*) from user_table_joint_management_user_log_1_test where ${search_type} = #{search_word}
+select count(*) from user_table_joint_management_user_log_1 where ${search_type} = #{search_word}
 <!--  2023-01-31 이전 방식 -->
 <!-- 		select count(*) from users where ${search_type} = #{search_word} -->
 	</select>
@@ -49,7 +49,7 @@ select count(*) from user_table_joint_management_user_log_1_test where ${search_
     <select id="select_users_where_registertype" parameterType="map" resultType="java.util.LinkedHashMap"  fetchSize="10240" flushCache="true" useCache="false">
 	select * from
 		 (select count(*) over()  as count , row_number() over (order by ${sort} ${direction} nulls last) row_idx, * 
-		  from user_table_joint_management_user_log_1_test  where ${search_type} = #{search_word}) t1 
+		  from user_table_joint_management_user_log_1 where ${search_type} = #{search_word}) t1 
 		where row_idx between ((#{page} - 1) * 10) + 1 and (#{page} * 10)
   <!--  2023-01-31 이전 방식 -->
 <!-- 		select row_idx , domain , maker, empty2,  addr, port,  p2p_uid, p2p_priority,  -->
@@ -70,7 +70,7 @@ select count(*) from user_table_joint_management_user_log_1_test where ${search_
 select *
 		from
 		 (select count(*) over()  as count , row_number() over (order by ${sort} ${direction} nulls last) row_idx, * 
-		  from user_table_joint_management_user_log_1_test where ${search_type} = #{search_word}) t1 
+		  from user_table_joint_management_user_log_1 where ${search_type} = #{search_word}) t1 
 		where row_idx between ((#{page} - 1) * 10) + 1 and (#{page} * 10)
 		  <!--  2023-01-31 이전 방식 -->
 <!-- 		select row_idx , domain , maker, empty2,  addr, port,  p2p_uid, p2p_priority,  -->
@@ -84,14 +84,14 @@ select *
 	</select>
 	
     <select id="count_users_where_serviceno" parameterType="String" resultType="int">
-    select count(*) from user_table_joint_management_user_log_1_test where service_no = #{service_no}
+    select count(*) from user_table_joint_management_user_log_1 where service_no = #{service_no}
       <!--  2023-01-31 이전 방식 -->
 <!-- 		select count(*) from users where service_no = #{service_no} -->
 	</select>
     <select id="select_users_where_serviceno" parameterType="map" resultType="java.util.LinkedHashMap"  fetchSize="10240">
 select *
 		 from (select count(*) over()  as count , row_number() over (order by ${sort} ${direction} nulls last) row_idx, 
-		 * from user_table_joint_management_user_log_1_test  where service_no = #{service_no}) t1 where row_idx 
+		 * from user_table_joint_management_user_log_1  where service_no = #{service_no}) t1 where row_idx 
 		 between ((#{page} - 1) * 10) + 1 and (#{page} * 10)
 		  <!--  2023-01-31 이전 방식 -->
 <!-- 		select row_idx , domain , maker, empty2,  addr, port,  p2p_uid, p2p_priority, p2p_device, regtime, -->
@@ -104,14 +104,14 @@ select *
 
     <select id="count_users_where_serviceno_and_search_type" parameterType="map" resultType="int">
     
-    select count(*) from user_table_joint_management_user_log_1_test where service_no = #{service_no} and ${search_type} like CONCAT('%',#{search_word},'%')
+    select count(*) from user_table_joint_management_user_log_1 where service_no = #{service_no} and ${search_type} like CONCAT('%',#{search_word},'%')
      <!--  2023-01-31 이전 방식 -->
 <!-- 		select count(*) from users where service_no = #{service_no} and ${search_type} like CONCAT('%',#{search_word},'%') -->
 	</select>
     <select id="select_users_where_serviceno_and_search_type" parameterType="map" resultType="java.util.LinkedHashMap" fetchSize="10240">
 select *
 		 from (select count(*) over()  as count , row_number() over (order by ${sort} ${direction} nulls last) row_idx
-		, * from user_table_joint_management_user_log_1_test 
+		, * from user_table_joint_management_user_log_1
 		   where service_no = #{service_no} and ${search_type} CONCAT('%',#{search_word},'%'))
 		    t1 where row_idx between ((#{page} - 1) * 10) + 1 and (#{page} * 10)
 		      <!--  2023-01-31 이전 방식 -->
@@ -125,7 +125,7 @@ select *
 	</select>
 
     <select id="count_users_where_serviceno_and_registertype" parameterType="map" resultType="int">
-    select count(*) from user_table_joint_management_user_log_1_test where service_no = #{service_no} and ${search_type} = #{search_word}
+    select count(*) from user_table_joint_management_user_log_1 where service_no = #{service_no} and ${search_type} = #{search_word}
  <!--  2023-01-31 이전 방식 -->
 <!-- 		select count(*) from users where service_no = #{service_no} and ${search_type} = #{search_word} -->
 	</select>
@@ -133,7 +133,7 @@ select *
 	select *
 		 from ( 
 		select count(*)  as count , row_number() over (order by ${sort} ${direction} nulls last) as row_idx ,*
-		from user_table_joint_management_user_log_1_test where service_no = #{service_no} and ${search_type} = #{search_word})
+		from user_table_joint_management_user_log_1 where service_no = #{service_no} and ${search_type} = #{search_word})
 		t1 where row_idx between ((#{page} - 1) * 10) + 1 and (#{page} * 10)
 		 <!--  2023-01-31 이전 방식 -->
 <!-- 		select row_idx , domain , maker, empty2,  addr, port,  p2p_uid, p2p_priority, p2p_device, regtime, -->
@@ -198,7 +198,7 @@ select *
          -->
         t1.access_rule AS access_rule
 		 from (select row_number() over (order by ${sort} ${direction} nulls last) row_idx, *
-		   from user_table_joint_management_user_log_0_test) as t1
+		   from user_table_joint_management_user_log_0) as t1
 		   
 		    <!--  2023-01-31 이전 방식 -->
         <!--  select  row_idx, domain , maker, empty2,  addr, port,  p2p_uid, p2p_priority, p2p_device, regtime, 
@@ -268,7 +268,7 @@ select *
          -->
         t1.access_rule AS access_rule
 		from (select row_number() over (order by ${sort} ${direction} nulls last) row_idx, * 
-			  from user_table_joint_management_user_log_0_test) as t1
+			  from user_table_joint_management_user_log_0) as t1
 		 where row_idx between ((#{page} - 1) * 10) + 1 and (#{page} * 10) 
 		
 <!--  2023-01-31 이전 방식 -->
@@ -285,7 +285,7 @@ select *
 
     <select id="select_users_all" parameterType="map" resultType="map" fetchSize="50000">
     select * from (
-    select count(*) over()  as count, row_number() over (order by ${sort} ${direction} nulls last)as row_idx , * from select_users_all_view_test  
+    select count(*) over()  as count, row_number() over (order by ${sort} ${direction} nulls last)as row_idx , * from select_users_all_view
     ) as t where row_idx between ((#{page} - 1) * 10) + 1 and (#{page} * 10)
   
 	</select>
@@ -364,7 +364,7 @@ select *
         
         t1.access_rule AS access_rule from (
 		select row_number() over (order by ${sort} ${direction} nulls last) row_idx, * 
-		  from user_table_joint_management_user_log_2_test  where  ${search_type} like CONCAT('%',#{search_word},'%') ) t1
+		  from user_table_joint_management_user_log_2  where  ${search_type} like CONCAT('%',#{search_word},'%') ) t1
 		   <!--  2023-01-31 이전 방식 -->
  		<!-- select row_idx, domain , maker, empty2,  addr, port,  p2p_uid, p2p_priority, p2p_device, regtime, 
 		
@@ -476,7 +476,7 @@ select *
          -->
         t1.access_rule AS access_rule
          from (select row_number() over (order by ${sort} ${direction} nulls last) row_idx, *   
-		 from user_table_joint_management_user_log_2_test  where ${search_type} = #{search_word}) t1
+		 from user_table_joint_management_user_log_2  where ${search_type} = #{search_word}) t1
 		 
 		  <!--  2023-01-31 이전 방식 -->
 <!-- 		select row_idx, domain , maker, empty2,  addr, port,  p2p_uid, p2p_priority, p2p_device, regtime, 
@@ -572,7 +572,7 @@ select *
         t1.access_rule AS access_rule
         from 
 		(select row_number() over (order by ${sort} ${direction} nulls last) row_idx,*
-		 from user_table_joint_management_user_log_0_test  where service_no = #{service_no}
+		 from user_table_joint_management_user_log_0  where service_no = #{service_no}
 		  
 		   <!--  2023-01-31 이전 방식 -->
          <!-- 
@@ -652,7 +652,7 @@ select *
         -->
         t1.access_rule AS access_rule
          from (
-		select row_number() over (order by ${sort} ${direction} nulls last) row_idx, * from user_table_joint_management_user_log_0_test
+		select row_number() over (order by ${sort} ${direction} nulls last) row_idx, * from user_table_joint_management_user_log_0
 		 where service_no = #{service_no} and ${search_type} like CONCAT('%',#{search_word},'%') ) as t1 
 		 
 		   <!--  2023-01-31 이전 방식 -->
@@ -725,7 +725,7 @@ select *
          -->
         t1.access_rule AS access_rule
          from (
-		select row_number() over (order by ${sort} ${direction} nulls last) row_idx, * from user_table_joint_management_user_log_0_test  where 
+		select row_number() over (order by ${sort} ${direction} nulls last) row_idx, * from user_table_joint_management_user_log_0  where 
 		 
 		 <!--  2023-01-31 이전 방식 -->
  		<!-- 

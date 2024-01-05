@@ -356,13 +356,13 @@ public class ApiService {
 		return apiDao.selectServiceWhereInServiceno(map);
 	}
 	
-	public List<Map<String, Object>> selectDevicePhoneWhereInServicenoKttTEST(
+	public List<Map<String, Object>> selectDeviceMacWhereInServicenoPhoneOTPKttTEST(
 			String serviceNoListString, String phone) {
 		Map<String, Object> map = new HashMap<>();
 		map.put("serviceNoListString", serviceNoListString);
 		map.put("phone", phone);
 
-		return apiDao.selectDevicePhoneWhereInServicenoKttTEST(map);
+		return apiDao.selectDeviceMacWhereInServicenoPhoneOTPKttTEST(map);
 	}
 	
 	public List<Map<String, Object>> selectDevicePhoneWhereInServiceno(
@@ -374,13 +374,13 @@ public class ApiService {
 		return apiDao.selectDevicePhoneWhereInServiceno(map);
 	}
 	
-	public List<Map<String, Object>> selectDeviceOTP1HourTimeWhereInServicenoKttTEST(
+	public List<Map<String, Object>> selectDeviceMacWhereInServicenoPhoneOTP1HourKttTEST(
 			String serviceNoListString, String phone) {
 		Map<String, Object> map = new HashMap<>();
 		map.put("serviceNoListString", serviceNoListString);
 		map.put("phone", phone);
 
-		return apiDao.selectDeviceOTP1HourTimeWhereInServicenoKttTEST(map);
+		return apiDao.selectDeviceMacWhereInServicenoPhoneOTP1HourKttTEST(map);
 	}
 	
 	public List<Map<String, Object>> selectDeviceOTP1HourTimeWhereInServiceno(

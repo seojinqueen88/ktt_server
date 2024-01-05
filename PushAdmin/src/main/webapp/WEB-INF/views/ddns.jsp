@@ -171,7 +171,7 @@ $(function()
 		    httpMethod: "POST", 
 		    data: $('#excel_all_form').serialize(), 
 		    successCallback: function (url) { 
-		    	alert("Sucess Download"); 
+		    	//alert("Sucess Download"); 
 		        $preparingFileModal.dialog('close');
 		    },
 		    failCallback: function (responseHtml, url, error) { 

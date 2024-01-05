@@ -252,15 +252,15 @@ function set_day_option(e, max_len)
 							<td height="30"></td>
 						</tr>
 						<tr>
-							<!-- <td colspan="1" height="30"></td> -->
-							<td colspan="7" align="center">
+						 	<td colspan="1" height="30"></td>  
+							<td colspan="5" align="center">
 								<form id="search_user_id_form" name="search_user_id_form" action="/PushAdmin/mobile_page.do">사용자 아이디&nbsp;&nbsp;
 									<input id="user_id" name="user_id" style="vertical-align: 5%" value="${user_id }">
 									<input id="search_user_id_btn" type="button" style="background: #000000; color: white;" value="검색">
 									<input type="hidden" name="type" id="type" value="mobile_search_user_id">
 								</form>
 							</td>
-							<td colspan="2" align="right"> 
+							<td colspan="3" align=right> 
 								<form id="excel_form" name="excel_form" action="/PushAdmin/mobile_excel.xlsx">엑셀 다운로드&nbsp;&nbsp;
 									<input id="excel_btn" type="button" style="background: #000000; color: white;" value="현재 페이지">
 									<input type="hidden" name="type" id="type" value="${type }">

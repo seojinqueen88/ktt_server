@@ -236,16 +236,23 @@ REGEXP_REPLACE(replace(coalesce(empty3,''), '.', ''),'[[:alpha:]]','','g')  as "
 		select a.service_no, upper(replace(rtrim(b.jumin), ':', '')) as mac, rtrim(b.empty2) as model, b.register_type, rtrim(b.empty3) as device_ver, c.fw_version as last_ver from service a left join users b on a.service_no = b.service_no left join models c on b.empty2 = c.model where a.service_no in (${serviceNoListString})
 	</select>
 	
-	<select id="selectDevicePhoneWhereInServicenoKttTEST" parameterType="map" resultType="map">
-		select distinct rtrim(jumin) as mac FROM users where service_no in (${serviceNoListString}) and replace(jumin , ':' ,'')not in(select distinct mac from ddnslog where service_no in (${serviceNoListString}) and phone not like '%OTP%' and phone = #{phone} );
-	</select>
-	
 	<select id="selectDevicePhoneWhereInServiceno" parameterType="map" resultType="map">
 		select distinct rtrim(jumin) as mac FROM users where service_no in (${serviceNoListString}) and replace(jumin , ':' ,'')not in(select distinct mac from ddnslog where service_no in (${serviceNoListString}) and phone = #{phone} );
 	</select>
 	
-	<select id="selectDeviceOTP1HourTimeWhereInServicenoKttTEST" parameterType="map" resultType="map">
+	<select id="selectDeviceMacWhereInServicenoPhoneOTPKttTEST" parameterType="map" resultType="map">  
+		<!-- 
+		select distinct rtrim(jumin) as mac  FROM users where service_no in (${serviceNoListString}) and replace(jumin , ':' ,'')not in(select distinct mac from ddnslog where service_no in (${serviceNoListString}) and phone not like '%OTP%' and phone = #{phone} );	
+		 -->
+		 select distinct rtrim(jumin) as mac FROM users where service_no in (${serviceNoListString}) and maker not like '%dahua%' and domain like '%telecopview%'and replace(jumin , ':' ,'')not in (select distinct mac from ddnslog where service_no in (${serviceNoListString}) and phone not like '%OTP%' and phone = #{phone} );			 	 
+	</select>
+	
+	<select id="selectDeviceMacWhereInServicenoPhoneOTP1HourKttTEST" parameterType="map" resultType="map">
+		<!-- 
 		select distinct rtrim(jumin) as mac FROM users where service_no in (${serviceNoListString}) and replace(jumin , ':' ,'')not in(select distinct mac from ddnslog where service_no in (${serviceNoListString}) and phone not like '%OTP%' and phone = #{phone} and NOW()-interval'1 hour' > create_time );
+	-->
+			 select distinct rtrim(jumin) as mac FROM users where service_no in (${serviceNoListString}) and maker not like '%dahua%' and domain like '%telecopview%'and replace(jumin , ':' ,'')not in(select distinct mac from ddnslog where service_no in (${serviceNoListString}) and phone not like '%OTP%' and phone = #{phone} and NOW()-interval'1 hour' > create_time );			 	 
+	
 	</select>
 	
 	<select id="selectDeviceOTP1HourTimeWhereInServiceno" parameterType="map" resultType="map">
@@ -292,7 +299,7 @@ REGEXP_REPLACE(replace(coalesce(empty3,''), '.', ''),'[[:alpha:]]','','g')  as "
 		on c.jumin = s.mac left join service as p on c.service_no = p.service_no 
    		where c.service_no in (${serviceNoListString}) 
 	</select>
-		
+			
 	<insert id="insertCheckIPValidation" parameterType="map">
 		insert into "CHECK_IP_VALIDATION"("mac_address", "LOG", "regdate", "mac","requested_ip") 
 		select 
